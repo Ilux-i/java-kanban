@@ -48,12 +48,4 @@ public class SubtaskManager extends TaskManager {
         EpicManager.checkStatus(subtask.getMaster()); // Обновление статуса Master
     }
 
-    public void clearByEpic(Epic epic) {
-        for (Subtask subtask : epic.getSubtasks()) {
-            tasks.remove(subtask.getId());
-        }
-    }
-
-
-
 }
