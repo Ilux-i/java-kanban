@@ -17,19 +17,19 @@ public class Task {
     }
 
     public long getId() {
-        return id;
+        return this.id;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public TaskStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public void setStatus(TaskStatus status) {

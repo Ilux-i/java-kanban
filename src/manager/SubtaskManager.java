@@ -3,57 +3,57 @@ package manager;// Сервис для работы с Подзадачами
 import task.Epic;
 import task.Subtask;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class SubtaskManager extends TaskManager {
-    // Получение всех задач
 
-    public static HashMap<Long, Subtask> getListOfTasks(Epic epic) {
-        return epic.getSubtasks();
-    }
 
     // Удаление всех задач
-    public static void clearTasks(Epic epic) {
-        epic.getSubtasks().clear();
+    public void clearTasks(Epic epic) {
+        for (Subtask subtask : epic.getSubtasks()) {
+            removeById(subtask.getId());
+        }
     }
 
-    // Получение задачи по id
-    public static Subtask getById(long id){
-        return searchEpic(id).getSubtasks().get(id);
-    }
 
     //Создание задачи
-    public static void addTask(Subtask subtask, Epic epic) {
+    public void addTask(Subtask subtask, Epic epic) {
         subtask.setMaster(epic);
-        epic.getSubtasks().put(subtask.getId(), subtask);
-        EpicManager.addSubtaskInEpic(subtask, epic);
-        EpicManager.checkStatus(epic);
+        subtask.setTasks(this.tasks);
+        this.tasks.put(subtask.getId(), subtask); // добавление в task
+        epic.getSubtasks().add(subtask); // Добавление в subtasks Master
+        EpicManager.checkStatus(epic); // Обновление статуса Master
     }
 
     // Обновление задачи по id
-    public static void update(Subtask subtask) {
+    public void update(Subtask subtask) {
         Epic epic = subtask.getMaster();
-        EpicManager.addSubtaskInEpic(subtask, epic);
-        EpicManager.checkStatus(epic);
+        this.tasks.put(subtask.getId(), subtask); // добавление в task
+        ArrayList<Subtask> arr = epic.getSubtasks(); // Добавление в subtasks Master
+        for(int i = 0; i < arr.size(); i++){
+            if(arr.get(i).getId() == subtask.getId()){
+                epic.getSubtasks().set(i, subtask);
+            }
+        }
+        EpicManager.checkStatus(epic); // Обновление статуса Master
     }
 
     // Удаление задачи по id
-    public static void removeById(long id) {
-        Epic epic = searchEpic(id);
-        epic.getSubtasks().remove(id);
-        EpicManager.checkStatus(epic);
+    public void removeById(long id) {
+        Subtask subtask = (Subtask) tasks.get(id);
+        subtask.getMaster().getSubtasks().remove(subtask);
+        tasks.remove(id);
+        EpicManager.checkStatus(subtask.getMaster()); // Обновление статуса Master
     }
 
-    private static Epic searchEpic(long id) {
-        for (Object task : tasks.values()){
-            if(task instanceof Epic){
-                Epic epic = (Epic) task;
-                if(EpicManager.getSubtasks(epic).containsKey(id)){
-                    return epic;
-                }
-            }
-
+    public void clearByEpic(Epic epic) {
+        for (Subtask subtask : epic.getSubtasks()) {
+            tasks.remove(subtask.getId());
         }
-        return null;
     }
+
+
+
 }

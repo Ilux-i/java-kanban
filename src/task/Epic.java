@@ -1,17 +1,21 @@
 package task;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class Epic extends Task{
 
-    private HashMap<Long, Subtask> subtasks;
+    private ArrayList<Subtask> subtasks;
 
     public Epic(String name, String description){
         super(name, description);
-        subtasks = new HashMap<Long, Subtask>();
+        subtasks = new ArrayList<>();
     }
 
-    public HashMap<Long, Subtask> getSubtasks() {
+    public ArrayList<Subtask> getSubtasks() {
         return this.subtasks;
+    }
+
+    public void setSubtasks(ArrayList<Subtask> subtasks) {
+        this.subtasks = subtasks;
     }
 }
