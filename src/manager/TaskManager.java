@@ -45,6 +45,7 @@ public class TaskManager {
     public void clearSubTasks(){
         for(Epic epic : epics.values()){
             epic.getSubtasks().clear();
+            epic.setStatus(TaskStatus.NEW);
         }
         this.subTasks.clear();
     }
@@ -73,7 +74,8 @@ public class TaskManager {
         epics.put(epic.getId(), epic);
     }
 
-    public void addSubTask(SubTask subTask, Epic epic) {
+    public void addSubTask(SubTask subTask) {
+        Epic epic = epics.get(subTask.getMaster());
         subTask.setMaster(epic.getId());
         subTasks.put(subTask.getId(), subTask); // добавление в task
         epic.getSubtasks().add(subTask); // Добавление в subtasks Master
