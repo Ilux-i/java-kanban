@@ -14,6 +14,8 @@ public interface TaskManager {
 
     List<SubTask> getListOfSubTasks();
 
+    List<Task> getHistory();
+
     // Удаление всех задач
     void clearTasks();
 

@@ -33,6 +33,11 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(subTasks.values());
     }
 
+    @Override
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
+    }
+
 
     // Удаление всех задач
     @Override
@@ -60,20 +65,29 @@ public class InMemoryTaskManager implements TaskManager {
     // Получение задачи по id
     @Override
     public Task getTaskById(long id){
-        historyManager.add(tasks.get(id));
-        return tasks.get(id);
+        if(tasks.containsKey(id)) {
+            historyManager.add(tasks.get(id));
+            return tasks.get(id);
+        }
+        return null;
     }
 
     @Override
     public Epic getEpicById(long id){
-        historyManager.add(epics.get(id));
-        return epics.get(id);
+        if(epics.containsKey(id)) {
+            historyManager.add(epics.get(id));
+            return epics.get(id);
+        }
+        return null;
     }
 
     @Override
     public SubTask getSubTaskById(long id){
-        historyManager.add(subTasks.get(id));
-        return subTasks.get(id);
+        if(subTasks.containsKey(id)) {
+            historyManager.add(subTasks.get(id));
+            return subTasks.get(id);
+        }
+        return null;
     }
 
 
@@ -90,31 +104,36 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubTask(SubTask subTask) {
-        Epic epic = epics.get(subTask.getMaster());
-        subTask.setMaster(epic.getId());
-        subTasks.put(subTask.getId(), subTask); // добавление в task
-        epic.getSubtasks().add(subTask); // Добавление в subtasks Master
-        checkStatus(epic); // Обновление статуса Master
+        if(subTask.getMaster() != subTask.getId()) {
+            Epic epic = epics.get(subTask.getMaster());
+            subTasks.put(subTask.getId(), subTask); // добавление в task
+            epic.getSubtasks().add(subTask); // Добавление в subtasks Master
+            checkStatus(epic); // Обновление статуса Master
+        }
     }
-
 
     // Обновление задачи
     @Override
     public void updateTask(Task task) {
-        tasks.put(task.getId(), task);
+        if(tasks.containsKey(task.getId())) {
+            tasks.put(task.getId(), task);
+        }
     }
 
     @Override
     public void updateEpic(Epic epic) {
-        epics.put(epic.getId(), epic);
+        if(epics.containsKey(epic.getId())) {
+            epics.put(epic.getId(), epic);
+        }
     }
 
     @Override
     public void updateSubTask(SubTask subTask) {
-        subTasks.put(subTask.getId(), subTask); // добавление в task
-        checkStatus(epics.get(subTask.getMaster())); // Обновление статуса Master
+        if(subTasks.containsKey(subTask.getId())) {
+            subTasks.put(subTask.getId(), subTask); // добавление в task
+            checkStatus(epics.get(subTask.getMaster())); // Обновление статуса Master
+        }
     }
-
 
     // Удаление задачи по id
     @Override
