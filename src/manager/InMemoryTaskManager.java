@@ -15,7 +15,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Long, Task> tasks = new HashMap<>();
     protected HashMap<Long, Epic> epics = new HashMap<>();
     protected HashMap<Long, SubTask> subTasks = new HashMap<>();
-    protected InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
+    protected HistoryManager historyManager = new InMemoryHistoryManager();
+    protected List<Task> history = historyManager.getHistory();
 
     // Получение всех задач
     @Override
@@ -35,14 +36,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getHistory() {
-        return historyManager.getHistory();
+        return history;
     }
 
 
     // Удаление всех задач
     @Override
     public void clearTasks(){
-        this.tasks.clear();
+        for(Task task : tasks.values()){
+            removeTaskById(task.getId());
+        }
     }
 
     @Override
@@ -58,7 +61,9 @@ public class InMemoryTaskManager implements TaskManager {
             epic.getSubtasks().clear();
             epic.setStatus(TaskStatus.NEW);
         }
-        this.subTasks.clear();
+        for(SubTask subTask : subTasks.values()){
+            removeEpicById(subTask.getId());
+        }
     }
 
 
@@ -138,12 +143,19 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление задачи по id
     @Override
     public void removeTaskById(long id) {
+        Task task = tasks.get(id);
+        while(history.contains(task)){
+            history.remove(task);
+        }
         tasks.remove(id);
     }
 
     @Override
     public void removeEpicById(long id) {
         Epic epic = epics.get(id);
+        while(history.contains(epic)){
+            history.remove(epic);
+        }
         if(epic.getSubtasks() != null) {
             for (SubTask subTask : epic.getSubtasks()){
                 subTasks.remove(subTask.getId());
@@ -157,6 +169,9 @@ public class InMemoryTaskManager implements TaskManager {
         SubTask subTask = subTasks.get(id);
         Epic epic = epics.get(subTask.getMaster());
         epic.getSubtasks().remove(subTask);
+        while(history.contains(subTask)){
+            history.remove(subTask);
+        }
         subTasks.remove(id);
         checkStatus(epic); // Обновление статуса Master
     }

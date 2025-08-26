@@ -3,6 +3,7 @@ package test;
 import manager.InMemoryHistoryManager;
 import manager.InMemoryTaskManager;
 import manager.Managers;
+import manager.TaskManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import java.util.List;
 
 class InMemoryTaskManagerTest {
 
-    private static InMemoryTaskManager manager;
+    private static TaskManager manager;
 
     @BeforeEach
     public void createManager(){
