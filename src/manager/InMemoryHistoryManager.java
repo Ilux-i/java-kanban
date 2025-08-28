@@ -15,7 +15,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         if(history.size() == SIZE_HISTORY){
             history.removeFirst();
         }
-        history.add(clone(task));
+        history.add(task);
     }
 
     @Override
@@ -23,12 +23,12 @@ public class InMemoryHistoryManager implements HistoryManager {
         return history;
     }
 
-    @Override
-    public Task clone(Task task){
-        Task copy = new Task(task.getName(), task.getDescription());
-        copy.setId(task.getId());
-        copy.setStatus(task.getStatus());
-        return copy;
-    }
+//    @Override
+//    public Task clone(Task task){
+//        Task copy = new Task(task.getName(), task.getDescription());
+//        copy.setId(task.getId());
+//        copy.setStatus(task.getStatus());
+//        return copy;
+//    }
 
 }

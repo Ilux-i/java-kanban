@@ -224,12 +224,19 @@ class InMemoryTaskManagerTest {
         manager.addTask(task1);
 
         Task task2 = manager.getTaskById(task1.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getId(), task2.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getName(), task2.getName());
+        Assertions.assertEquals(manager.getHistory().get(0).getDescription(), task2.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(0).getStatus(), task2.getStatus());
+
         task2.setDescription("description2");
         manager.updateTask(task2);
         Task task3 = manager.getTaskById(task2.getId());
-        List<Task> listHistory = manager.getHistory();
+        Assertions.assertEquals(manager.getHistory().get(1).getId(), task3.getId());
+        Assertions.assertEquals(manager.getHistory().get(1).getName(), task3.getName());
+        Assertions.assertEquals(manager.getHistory().get(1).getDescription(), task3.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(1).getStatus(), task3.getStatus());
 
-        Assertions.assertNotEquals(listHistory.get(0), listHistory.get(1));
     }
 
     @Test
@@ -238,12 +245,20 @@ class InMemoryTaskManagerTest {
         manager.addEpic(epic1);
 
         Epic epic2 = manager.getEpicById(epic1.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getId(), epic2.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getName(), epic2.getName());
+        Assertions.assertEquals(manager.getHistory().get(0).getDescription(), epic2.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(0).getStatus(), epic2.getStatus());
+
         epic2.setDescription("description2");
         manager.updateEpic(epic2);
-        Epic task3 = manager.getEpicById(epic2.getId());
-        List<Task> listHistory = manager.getHistory();
+        Epic epic3 = manager.getEpicById(epic2.getId());
+        Assertions.assertEquals(manager.getHistory().get(1).getId(), epic3.getId());
+        Assertions.assertEquals(manager.getHistory().get(1).getName(), epic3.getName());
+        Assertions.assertEquals(manager.getHistory().get(1).getDescription(), epic3.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(1).getStatus(), epic3.getStatus());
 
-        Assertions.assertNotEquals(listHistory.get(0), listHistory.get(1));
+
     }
 
     @Test
@@ -254,11 +269,17 @@ class InMemoryTaskManagerTest {
         manager.addSubTask(subTask1);
 
         SubTask subTask2 = manager.getSubTaskById(subTask1.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getId(), subTask2.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getName(), subTask2.getName());
+        Assertions.assertEquals(manager.getHistory().get(0).getDescription(), subTask2.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(0).getStatus(), subTask2.getStatus());
+
         subTask2.setDescription("description2");
         manager.updateTask(subTask2);
-        SubTask task3 = manager.getSubTaskById(subTask2.getId());
-        List<Task> listHistory = manager.getHistory();
-
-        Assertions.assertNotEquals(listHistory.get(0), listHistory.get(1));
+        SubTask subTask3 = manager.getSubTaskById(subTask2.getId());
+        Assertions.assertEquals(manager.getHistory().get(1).getId(), subTask3.getId());
+        Assertions.assertEquals(manager.getHistory().get(1).getName(), subTask3.getName());
+        Assertions.assertEquals(manager.getHistory().get(1).getDescription(), subTask3.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(1).getStatus(), subTask3.getStatus());
     }
 }

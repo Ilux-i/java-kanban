@@ -15,8 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Long, Task> tasks = new HashMap<>();
     protected HashMap<Long, Epic> epics = new HashMap<>();
     protected HashMap<Long, SubTask> subTasks = new HashMap<>();
-    protected HistoryManager historyManager = new InMemoryHistoryManager();
-    protected List<Task> history = historyManager.getHistory();
+    protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     // Получение всех задач
     @Override
@@ -36,7 +35,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getHistory() {
-        return history;
+        return historyManager.getHistory();
     }
 
 
@@ -144,8 +143,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeTaskById(long id) {
         Task task = tasks.get(id);
-        while(history.contains(task)){
-            history.remove(task);
+        while(historyManager.getHistory().contains(task)){
+            historyManager.getHistory().remove(task);
         }
         tasks.remove(id);
     }
@@ -153,8 +152,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeEpicById(long id) {
         Epic epic = epics.get(id);
-        while(history.contains(epic)){
-            history.remove(epic);
+        while(historyManager.getHistory().contains(epic)){
+            historyManager.getHistory().remove(epic);
         }
         if(epic.getSubtasks() != null) {
             for (SubTask subTask : epic.getSubtasks()){
@@ -169,8 +168,8 @@ public class InMemoryTaskManager implements TaskManager {
         SubTask subTask = subTasks.get(id);
         Epic epic = epics.get(subTask.getMaster());
         epic.getSubtasks().remove(subTask);
-        while(history.contains(subTask)){
-            history.remove(subTask);
+        while(historyManager.getHistory().contains(subTask)){
+            historyManager.getHistory().remove(subTask);
         }
         subTasks.remove(id);
         checkStatus(epic); // Обновление статуса Master
