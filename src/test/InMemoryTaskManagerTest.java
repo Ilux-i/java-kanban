@@ -11,8 +11,6 @@ import task.Epic;
 import task.SubTask;
 import task.Task;
 
-import java.util.List;
-
 class InMemoryTaskManagerTest {
 
     private static TaskManager manager;
@@ -281,5 +279,58 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(manager.getHistory().get(1).getName(), subTask3.getName());
         Assertions.assertEquals(manager.getHistory().get(1).getDescription(), subTask3.getDescription());
         Assertions.assertEquals(manager.getHistory().get(1).getStatus(), subTask3.getStatus());
+    }
+
+//  Таска должна удаляться из хешмапы и истории
+    @Test
+    public void deleteTaskByIdFromEntireSystem(){
+        Task task1 = new Task("task1", "description1");
+        manager.addTask(task1);
+        task1 = manager.getTaskById(task1.getId());
+        manager.removeTaskById(task1.getId());
+
+        Assertions.assertNull(manager.getTaskById(task1.getId()));
+        Assertions.assertFalse(manager.getHistory().contains(task1));
+    }
+
+//  Эпик должен удаляться из хешмапы и истории как и его сабтаски
+    @Test
+    public void deleteEpicByIdFromEntireSystem(){
+        Epic epic = new Epic("task1", "description1");
+        SubTask subTask = new SubTask("subTask1", "description1", epic.getId());
+        manager.addEpic(epic);
+        manager.addSubTask(subTask);
+
+        epic = manager.getEpicById(epic.getId());
+        subTask = manager.getSubTaskById(subTask.getId());
+        manager.removeEpicById(epic.getId());
+
+        Assertions.assertNull(manager.getTaskById(epic.getId()));
+        Assertions.assertFalse(manager.getHistory().contains(epic));
+        for(SubTask task : epic.getSubtasks()){
+            Assertions.assertNull(manager.getSubTaskById(task.getId()));
+            Assertions.assertFalse(manager.getHistory().contains(task));
+        }
+    }
+
+//  Сабтаски должны удаляться из хешмапы, истории и списка сабтасков эпика(только она)
+    @Test
+    public void deleteSubTaskByIdFromEntireSystem(){
+        Epic epic = new Epic("task1", "description1");
+        SubTask subTask1 = new SubTask("subTask1", "description1", epic.getId());
+        SubTask subTask2 = new SubTask("subTask2", "description2", epic.getId());
+        manager.addEpic(epic);
+        manager.addSubTask(subTask1);
+        manager.addSubTask(subTask2);
+
+        subTask1 = manager.getSubTaskById(subTask1.getId());
+        manager.removeSubTaskById(subTask1.getId());
+
+        Assertions.assertNull(manager.getSubTaskById(subTask1.getId()));
+        Assertions.assertNotNull(manager.getSubTaskById(subTask2.getId()));
+        Assertions.assertFalse(manager.getHistory().contains(subTask1));
+        Assertions.assertTrue(manager.getHistory().contains(subTask2));
+        Assertions.assertFalse(epic.getSubtasks().contains(subTask1));
+        Assertions.assertTrue(epic.getSubtasks().contains(subTask2));
     }
 }
