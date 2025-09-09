@@ -1,6 +1,6 @@
-package manager;
+package main.java.manager;
 
-import task.Task;
+import main.java.task.Task;
 
 public class Node {
     private Node next;

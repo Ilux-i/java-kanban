@@ -1,9 +1,9 @@
-package manager;// Сервис для работы с Задачами
+package main.java.manager;// Сервис для работы с Задачами
 
-import status.TaskStatus;
-import task.Epic;
-import task.SubTask;
-import task.Task;
+import main.java.status.TaskStatus;
+import main.java.task.Epic;
+import main.java.task.SubTask;
+import main.java.task.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -110,7 +110,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void addSubTask(SubTask subTask) {
         if (subTask.getMaster() != subTask.getId()) {
             Epic epic = epics.get(subTask.getMaster());
-            subTasks.put(subTask.getId(), subTask); // добавление в task
+            subTasks.put(subTask.getId(), subTask); // добавление в main.java.task
             epic.getSubtasks().add(subTask); // Добавление в subtasks Master
             checkStatus(epic); // Обновление статуса Master
         }
@@ -134,7 +134,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubTask(SubTask subTask) {
         if (subTasks.containsKey(subTask.getId())) {
-            subTasks.put(subTask.getId(), subTask); // добавление в task
+            subTasks.put(subTask.getId(), subTask); // добавление в main.java.task
             checkStatus(epics.get(subTask.getMaster())); // Обновление статуса Master
         }
     }

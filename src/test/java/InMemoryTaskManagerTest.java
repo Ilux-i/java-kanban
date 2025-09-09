@@ -1,15 +1,15 @@
-package test;
+package test.java;
 
-import manager.InMemoryHistoryManager;
-import manager.InMemoryTaskManager;
-import manager.Managers;
-import manager.TaskManager;
+import main.java.manager.InMemoryHistoryManager;
+import main.java.manager.InMemoryTaskManager;
+import main.java.manager.Managers;
+import main.java.manager.TaskManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import task.Epic;
-import task.SubTask;
-import task.Task;
+import main.java.task.Epic;
+import main.java.task.SubTask;
+import main.java.task.Task;
 
 class InMemoryTaskManagerTest {
 

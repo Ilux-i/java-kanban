@@ -1,8 +1,8 @@
-package manager;
+package main.java.manager;
 
-import task.Epic;
-import task.SubTask;
-import task.Task;
+import main.java.task.Epic;
+import main.java.task.SubTask;
+import main.java.task.Task;
 
 import java.util.List;
 

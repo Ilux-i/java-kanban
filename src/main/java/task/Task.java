@@ -1,6 +1,6 @@
-package task;
+package main.java.task;
 
-import status.TaskStatus;
+import main.java.status.TaskStatus;
 
 public class Task {
     private static long counter;
