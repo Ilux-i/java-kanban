@@ -16,14 +16,14 @@ class InMemoryTaskManagerTest {
     private static TaskManager manager;
 
     @BeforeEach
-    public void createManager(){
+    public void createManager() {
         manager = Managers.getDefault();
     }
 
 
-//  Проверяется, что экземпляры или наследники класса Task равны друг другу, если равен их id;
+    //  Проверяется, что экземпляры или наследники класса Task равны друг другу, если равен их id;
     @Test
-    public void tasksEqualById(){
+    public void tasksEqualById() {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
         Task task2 = manager.getTaskById(task1.getId());
@@ -32,7 +32,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void epicsEqualById(){
+    public void epicsEqualById() {
         Epic task1 = new Epic("task1", "description1");
         manager.addEpic(task1);
         Epic task2 = manager.getEpicById(task1.getId());
@@ -41,7 +41,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void subTasksEqualById(){
+    public void subTasksEqualById() {
         Epic epic = new Epic("task1", "description1");
         manager.addEpic(epic);
         SubTask task1 = new SubTask("task1", "description1", epic.getId());
@@ -52,9 +52,9 @@ class InMemoryTaskManagerTest {
     }
 
 
-//  Проверяет, что объект Epic нельзя добавить в самого себя в виде подзадачи
+    //  Проверяет, что объект Epic нельзя добавить в самого себя в виде подзадачи
     @Test
-    public void epicCannotBeAddedToItself(){
+    public void epicCannotBeAddedToItself() {
         Epic epic = new Epic("task1", "description1");
         SubTask subTask = new SubTask("task1", "description1", epic.getId());
         subTask.setId(epic.getId());
@@ -64,9 +64,9 @@ class InMemoryTaskManagerTest {
     }
 
 
-//  Проверяет, что объект Subtask нельзя сделать своим же эпиком
+    //  Проверяет, что объект Subtask нельзя сделать своим же эпиком
     @Test
-    public void subTaskCannotBeAddedToItself(){
+    public void subTaskCannotBeAddedToItself() {
         SubTask subTask = new SubTask("task1", "description1", 0);
         subTask.setId(0);
         manager.addSubTask(subTask);
@@ -74,21 +74,21 @@ class InMemoryTaskManagerTest {
     }
 
 
-//  Проверяется корректность работы Managers
+    //  Проверяется корректность работы Managers
     @Test
-    public void managersReturnInMemoryTaskManager(){
+    public void managersReturnInMemoryTaskManager() {
         Assertions.assertEquals(Managers.getDefault().getClass(), InMemoryTaskManager.class);
     }
 
     @Test
-    public void managersReturnInMemoryHistoryManager(){
+    public void managersReturnInMemoryHistoryManager() {
         Assertions.assertEquals(Managers.getDefaultHistory().getClass(), InMemoryHistoryManager.class);
     }
 
 
-//  Проверяется, что действительно добавляются задачи разного типа
+    //  Проверяется, что действительно добавляются задачи разного типа
     @Test
-    public void addedTaskIsTask(){
+    public void addedTaskIsTask() {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
 
@@ -96,7 +96,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void addedEpicIsEpic(){
+    public void addedEpicIsEpic() {
         Epic epic = new Epic("epic1", "description1");
         manager.addEpic(epic);
 
@@ -104,7 +104,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void addedSubTaskIsSubTask(){
+    public void addedSubTaskIsSubTask() {
         Epic epic = new Epic("epic1", "description1");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("subTask1", "description1", epic.getId());
@@ -116,7 +116,7 @@ class InMemoryTaskManagerTest {
 
     //  Проверяется, что действительно добавляются задачи которые можно найти по Id
     @Test
-    public void addedTaskIsFoundById(){
+    public void addedTaskIsFoundById() {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
 
@@ -126,7 +126,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void addedEpicIsFoundById(){
+    public void addedEpicIsFoundById() {
         Epic epic1 = new Epic("epic1", "description1");
         manager.addEpic(epic1);
 
@@ -136,7 +136,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void addedSubTaskIsFoundById(){
+    public void addedSubTaskIsFoundById() {
         Epic epic = new Epic("epic1", "description1");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("subTask1", "description1", epic.getId());
@@ -148,9 +148,9 @@ class InMemoryTaskManagerTest {
     }
 
 
-//  Проверяет, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера
+    //  Проверяет, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера
     @Test
-    public void tasksWithGivenIdAndGeneratedIdDoNotConflictWithinManager(){
+    public void tasksWithGivenIdAndGeneratedIdDoNotConflictWithinManager() {
         Task task1 = new Task("task1", "description1"); // id сгенерированный
         Task task2 = new Task("task2", "description2");
         task2.setId(100); // id заданный
@@ -173,9 +173,9 @@ class InMemoryTaskManagerTest {
     }
 
 
-//  Тесты, в которых проверяется неизменность задач (по всем полям) при добавлении задач в менеджер
+    //  Тесты, в которых проверяется неизменность задач (по всем полям) при добавлении задач в менеджер
     @Test
-    public void taskPersistenceWhenAddingTaskToManager(){
+    public void taskPersistenceWhenAddingTaskToManager() {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
         Task task2 = manager.getTaskById(task1.getId());
@@ -187,7 +187,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void epicPersistenceWhenAddingTaskToManager(){
+    public void epicPersistenceWhenAddingTaskToManager() {
         Epic epic1 = new Epic("epic1", "description1");
         manager.addEpic(epic1);
         Epic epic2 = manager.getEpicById(epic1.getId());
@@ -200,7 +200,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void subTaskPersistenceWhenAddingTaskToManager(){
+    public void subTaskPersistenceWhenAddingTaskToManager() {
         Epic epic1 = new Epic("epic1", "description1");
         manager.addEpic(epic1);
         SubTask subTask1 = new SubTask("subTask1", "description1", epic1.getId());
@@ -215,9 +215,9 @@ class InMemoryTaskManagerTest {
     }
 
 
-//  Проверяется, что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
+    //  Проверяется, что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
     @Test
-    public void historyManagerSavePreviousVersionOfTaskAndItsData(){
+    public void historyManagerSavePreviousVersionOfTaskAndItsData() {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
 
@@ -239,7 +239,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void historyManagerSavePreviousVersionOfEpicAndItsData(){
+    public void historyManagerSavePreviousVersionOfEpicAndItsData() {
         Epic epic1 = new Epic("Epic1", "description1");
         manager.addEpic(epic1);
 
@@ -262,7 +262,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void historyManagerSavePreviousVersionOfSubTaskAndItsData(){
+    public void historyManagerSavePreviousVersionOfSubTaskAndItsData() {
         Epic epic = new Epic("Epic1", "description1");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("task1", "description1", epic.getId());
@@ -283,9 +283,9 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(manager.getHistory().get(0).getStatus(), subTask3.getStatus());
     }
 
-//  Таска должна удаляться из хешмапы и истории
+    //  Таска должна удаляться из хешмапы и истории
     @Test
-    public void deleteTaskByIdFromEntireSystem(){
+    public void deleteTaskByIdFromEntireSystem() {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
         task1 = manager.getTaskById(task1.getId());
@@ -295,9 +295,9 @@ class InMemoryTaskManagerTest {
         Assertions.assertFalse(manager.getHistory().contains(task1));
     }
 
-//  Эпик должен удаляться из хешмапы и истории как и его сабтаски
+    //  Эпик должен удаляться из хешмапы и истории как и его сабтаски
     @Test
-    public void deleteEpicByIdFromEntireSystem(){
+    public void deleteEpicByIdFromEntireSystem() {
         Epic epic = new Epic("task1", "description1");
         SubTask subTask = new SubTask("subTask1", "description1", epic.getId());
         manager.addEpic(epic);
@@ -309,15 +309,15 @@ class InMemoryTaskManagerTest {
 
         Assertions.assertNull(manager.getTaskById(epic.getId()));
         Assertions.assertFalse(manager.getHistory().contains(epic));
-        for(SubTask task : epic.getSubtasks()){
+        for (SubTask task : epic.getSubtasks()) {
             Assertions.assertNull(manager.getSubTaskById(task.getId()));
             Assertions.assertFalse(manager.getHistory().contains(task));
         }
     }
 
-//  Сабтаски должны удаляться из хешмапы, истории и списка сабтасков эпика(только она)
+    //  Сабтаски должны удаляться из хешмапы, истории и списка сабтасков эпика(только она)
     @Test
-    public void deleteSubTaskByIdFromEntireSystem(){
+    public void deleteSubTaskByIdFromEntireSystem() {
         Epic epic = new Epic("task1", "description1");
         SubTask subTask1 = new SubTask("subTask1", "description1", epic.getId());
         SubTask subTask2 = new SubTask("subTask2", "description2", epic.getId());
