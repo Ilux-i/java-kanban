@@ -144,7 +144,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeTaskById(long id) {
         Task task = tasks.get(id);
         while(historyManager.getHistory().contains(task)){
-            historyManager.getHistory().remove(task);
+            historyManager.remove(task.getId());
         }
         tasks.remove(id);
     }
@@ -153,7 +153,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeEpicById(long id) {
         Epic epic = epics.get(id);
         while(historyManager.getHistory().contains(epic)){
-            historyManager.getHistory().remove(epic);
+            historyManager.remove(epic.getId());
         }
         if(epic.getSubtasks() != null) {
             while(!(epic.getSubtasks().isEmpty())){
@@ -170,7 +170,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(subTask.getMaster());
         epic.getSubtasks().remove(subTask);
         while(historyManager.getHistory().contains(subTask)){
-            historyManager.getHistory().remove(subTask);
+            historyManager.remove(subTask.getId());
         }
         subTasks.remove(id);
         checkStatus(epic); // Обновление статуса Master
