@@ -222,6 +222,7 @@ class InMemoryTaskManagerTest {
         manager.addTask(task1);
 
         Task task2 = manager.getTaskById(task1.getId());
+        Task task = manager.getHistory().get(0);
         Assertions.assertEquals(manager.getHistory().get(0).getId(), task2.getId());
         Assertions.assertEquals(manager.getHistory().get(0).getName(), task2.getName());
         Assertions.assertEquals(manager.getHistory().get(0).getDescription(), task2.getDescription());
@@ -230,10 +231,10 @@ class InMemoryTaskManagerTest {
         task2.setDescription("description2");
         manager.updateTask(task2);
         Task task3 = manager.getTaskById(task2.getId());
-        Assertions.assertEquals(manager.getHistory().get(1).getId(), task3.getId());
-        Assertions.assertEquals(manager.getHistory().get(1).getName(), task3.getName());
-        Assertions.assertEquals(manager.getHistory().get(1).getDescription(), task3.getDescription());
-        Assertions.assertEquals(manager.getHistory().get(1).getStatus(), task3.getStatus());
+        Assertions.assertEquals(manager.getHistory().get(0).getId(), task3.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getName(), task3.getName());
+        Assertions.assertEquals(manager.getHistory().get(0).getDescription(), task3.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(0).getStatus(), task3.getStatus());
 
     }
 
@@ -243,6 +244,7 @@ class InMemoryTaskManagerTest {
         manager.addEpic(epic1);
 
         Epic epic2 = manager.getEpicById(epic1.getId());
+
         Assertions.assertEquals(manager.getHistory().get(0).getId(), epic2.getId());
         Assertions.assertEquals(manager.getHistory().get(0).getName(), epic2.getName());
         Assertions.assertEquals(manager.getHistory().get(0).getDescription(), epic2.getDescription());
@@ -251,10 +253,10 @@ class InMemoryTaskManagerTest {
         epic2.setDescription("description2");
         manager.updateEpic(epic2);
         Epic epic3 = manager.getEpicById(epic2.getId());
-        Assertions.assertEquals(manager.getHistory().get(1).getId(), epic3.getId());
-        Assertions.assertEquals(manager.getHistory().get(1).getName(), epic3.getName());
-        Assertions.assertEquals(manager.getHistory().get(1).getDescription(), epic3.getDescription());
-        Assertions.assertEquals(manager.getHistory().get(1).getStatus(), epic3.getStatus());
+        Assertions.assertEquals(manager.getHistory().get(0).getId(), epic3.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getName(), epic3.getName());
+        Assertions.assertEquals(manager.getHistory().get(0).getDescription(), epic3.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(0).getStatus(), epic3.getStatus());
 
 
     }
@@ -275,10 +277,10 @@ class InMemoryTaskManagerTest {
         subTask2.setDescription("description2");
         manager.updateTask(subTask2);
         SubTask subTask3 = manager.getSubTaskById(subTask2.getId());
-        Assertions.assertEquals(manager.getHistory().get(1).getId(), subTask3.getId());
-        Assertions.assertEquals(manager.getHistory().get(1).getName(), subTask3.getName());
-        Assertions.assertEquals(manager.getHistory().get(1).getDescription(), subTask3.getDescription());
-        Assertions.assertEquals(manager.getHistory().get(1).getStatus(), subTask3.getStatus());
+        Assertions.assertEquals(manager.getHistory().get(0).getId(), subTask3.getId());
+        Assertions.assertEquals(manager.getHistory().get(0).getName(), subTask3.getName());
+        Assertions.assertEquals(manager.getHistory().get(0).getDescription(), subTask3.getDescription());
+        Assertions.assertEquals(manager.getHistory().get(0).getStatus(), subTask3.getStatus());
     }
 
 //  Таска должна удаляться из хешмапы и истории
