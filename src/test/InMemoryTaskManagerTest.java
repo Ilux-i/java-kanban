@@ -1,4 +1,4 @@
-package test.java;
+package test;
 
 import main.java.manager.InMemoryHistoryManager;
 import main.java.manager.InMemoryTaskManager;
