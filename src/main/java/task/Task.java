@@ -1,6 +1,6 @@
-package task;
+package main.java.task;
 
-import status.TaskStatus;
+import main.java.status.TaskStatus;
 
 public class Task {
     private static long counter;
@@ -9,7 +9,7 @@ public class Task {
     protected String description;
     protected TaskStatus status;
 
-    public Task(String name, String description){
+    public Task(String name, String description) {
         id = Task.counter++;
         this.name = name;
         this.description = description;
@@ -19,7 +19,8 @@ public class Task {
     public long getId() {
         return this.id;
     }
-    public void setId(long id){
+
+    public void setId(long id) {
         this.id = id;
     }
 
