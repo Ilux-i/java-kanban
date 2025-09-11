@@ -267,10 +267,7 @@ class InMemoryTaskManagerTest {
         manager.addSubTask(subTask1);
 
         SubTask subTask2 = manager.getSubTaskById(subTask1.getId());
-        Assertions.assertEquals(manager.getHistory().get(0).getId(), subTask2.getId());
-        Assertions.assertEquals(manager.getHistory().get(0).getName(), subTask2.getName());
-        Assertions.assertEquals(manager.getHistory().get(0).getDescription(), subTask2.getDescription());
-        Assertions.assertEquals(manager.getHistory().get(0).getStatus(), subTask2.getStatus());
+        Assertions.assertEquals(manager.getHistory().get(0), subTask2);
 
         subTask2.setDescription("description2");
         manager.updateTask(subTask2);

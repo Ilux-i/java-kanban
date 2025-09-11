@@ -16,27 +16,23 @@ public class InMemoryHistoryManager implements HistoryManager {
 //      <----------------------@>
 
     private final Map<Long, Node> map = new HashMap();
-    public Node tail = new Node(null, null);
-    public Node head = new Node(tail, null);
-
-    private int size = 0;
+    private Node tail = new Node(null, null);
+    private Node head = new Node(tail, null);
 
     @Override
     public void add(Task task) {
         if (map.containsKey(task.getId())) {
             removeNode(map.get(task.getId()));
-            linkLast(task);
-        } else {
-            linkLast(task);
-            map.put(task.getId(), head);
         }
+        linkLast(task);
+        map.put(task.getId(), head);
     }
 
     @Override
     public List<Task> getHistory() {
         List<Task> tasks = new ArrayList<>();
         Node node = head;
-        for (int i = 0; i < size; i++) {
+        while (node.getPrev() != null) {
             tasks.add(node.getCore());
             node = node.getPrev();
         }
@@ -55,7 +51,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         Node node = new Node(head, task);
         head.setNext(node);
         head = node;
-        size++;
     }
 
     private void removeNode(Node node) {
@@ -68,6 +63,40 @@ public class InMemoryHistoryManager implements HistoryManager {
             prev.setNext(next);
             next.setPrev(prev);
         }
-        size--;
+    }
+}
+
+class Node {
+    private Node next;
+    private Task core;
+    private Node prev;
+
+    Node(Node prev, Task core) {
+        this.core = core;
+        this.prev = prev;
+    }
+
+    public Node getNext() {
+        return next;
+    }
+
+    public void setNext(Node next) {
+        this.next = next;
+    }
+
+    public Task getCore() {
+        return core;
+    }
+
+    public void setCore(Task core) {
+        this.core = core;
+    }
+
+    public Node getPrev() {
+        return prev;
+    }
+
+    public void setPrev(Node prev) {
+        this.prev = prev;
     }
 }
