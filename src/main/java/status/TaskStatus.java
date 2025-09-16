@@ -1,4 +1,4 @@
-package status;
+package main.java.status;
 
 public enum TaskStatus {
     NEW,

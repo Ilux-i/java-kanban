@@ -1,4 +1,4 @@
-package task;
+package main.java.task;
 
 // Класс отвечающий за реализацию объекта "Эпик"
 public class SubTask extends Task {
