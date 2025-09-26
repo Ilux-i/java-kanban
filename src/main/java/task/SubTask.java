@@ -1,5 +1,8 @@
 package main.java.task;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // Класс отвечающий за реализацию объекта "Эпик"
 public class SubTask extends Task {
 
@@ -10,12 +13,23 @@ public class SubTask extends Task {
         this.idMaster = idMaster;
     }
 
+    public SubTask(String[] list) {
+        super(list);
+        this.idMaster = Long.parseLong(list[5]);
+    }
+
     public long getMaster() {
         return idMaster;
     }
 
     public void setMaster(long id) {
         idMaster = id;
+    }
+
+    public String toString() {
+        String str = super.toString();
+        str += "," + String.valueOf(this.getMaster());
+        return str;
     }
 
 }
