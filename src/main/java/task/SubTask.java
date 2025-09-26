@@ -1,8 +1,5 @@
 package main.java.task;
 
-import java.util.ArrayList;
-import java.util.List;
-
 // Класс отвечающий за реализацию объекта "Эпик"
 public class SubTask extends Task {
 
