@@ -8,7 +8,7 @@ import main.java.task.Task;
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager manager = new FileBackedTaskManager();
+        TaskManager manager = FileBackedTaskManager.loadFromFile("data_test.csv");
         manager.addTask(new Task("task1", "description4"));
         manager.addEpic(new Epic("epic", "description4"));
         manager.addSubTask(new SubTask("subtask", "description4", 1));

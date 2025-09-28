@@ -1,6 +1,7 @@
 package main.java.manager;
 
 import main.java.exception.ManagerSaveException;
+import main.java.status.TaskType;
 import main.java.task.Epic;
 import main.java.task.SubTask;
 import main.java.task.Task;
@@ -11,11 +12,8 @@ import java.util.HashMap;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    public FileBackedTaskManager() {
-        loadFromFile();
-    }
-
-    private static final String FILE = "data.csv";
+    private static String file;
+    private static final String HEADER = "id,type,name,status,description,epic";
 
     // Удаление всех задач
     @Override
@@ -94,9 +92,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private void save() {
-        try (BufferedWriter br = new BufferedWriter(new FileWriter(FILE))) {
-            String line = "id,type,name,status,description,epic";
-            br.write(line + "\n");
+        try (BufferedWriter br = new BufferedWriter(new FileWriter(file))) {
+            br.write(HEADER + System.lineSeparator());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,7 +107,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private <T extends Task> void writeTaskToFile(HashMap<Long, T> list) throws ManagerSaveException {
-        try (BufferedWriter br = new BufferedWriter(new FileWriter(FILE, true))) {
+        try (BufferedWriter br = new BufferedWriter(new FileWriter(file, true))) {
             for (T task : list.values()) {
                 br.write(task.toString() + "\n");
             }
@@ -119,37 +116,46 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    private void loadFromFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE))) {
-            br.readLine();
+    public static FileBackedTaskManager loadFromFile(String file) {
+        FileBackedTaskManager taskManager = new FileBackedTaskManager();
+        taskManager.file = file;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String[] line;
+            System.out.println(br.readLine());
+
             while (br.ready()) {
                 line = br.readLine().split(",");
                 if (line[0].isEmpty()) {
                     break;
                 }
-                switch (line[1]) {
-                    case "TASK":
+
+                switch (TaskType.valueOf(line[1])) {
+                    case TaskType.TASK:
                         Task task = new Task(line);
-                        tasks.put(task.getId(), task);
+                        taskManager.tasks.put(task.getId(), task);
                         break;
-                    case "EPIC":
+                    case TaskType.EPIC:
                         ArrayList<SubTask> list = new ArrayList<>();
                         for (int i = 5; i < line.length; i++) {
-                            list.add(subTasks.get(Long.parseLong(line[i])));
+                            list.add(taskManager.subTasks.get(Long.parseLong(line[i])));
                         }
                         Epic epic = new Epic(line, list);
-                        epics.put(epic.getId(), epic);
+                        taskManager.epics.put(epic.getId(), epic);
                         break;
-                    case "SUBTASK":
+                    case TaskType.SUBTASK:
                         SubTask subTask = new SubTask(line);
-                        subTasks.put(subTask.getId(), subTask);
+                        taskManager.subTasks.put(subTask.getId(), subTask);
                         break;
                 }
+
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return taskManager;
     }
 
 }

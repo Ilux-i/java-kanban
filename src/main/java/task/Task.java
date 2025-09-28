@@ -1,6 +1,7 @@
 package main.java.task;
 
 import main.java.status.TaskStatus;
+import main.java.status.TaskType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,7 @@ public class Task {
     public String toString() {
         List<String> list = new ArrayList<>();
         list.add(String.valueOf(this.id));
-        list.add(this.getClass().getSimpleName().toUpperCase());
+        list.add(TaskType.valueOf(this.getClass().getSimpleName().toUpperCase()).toString());
         list.add(this.name);
         list.add(this.status.toString());
         list.add(this.description);
