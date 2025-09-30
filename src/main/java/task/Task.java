@@ -1,6 +1,10 @@
 package main.java.task;
 
 import main.java.status.TaskStatus;
+import main.java.status.TaskType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Task {
     private static long counter;
@@ -14,6 +18,15 @@ public class Task {
         this.name = name;
         this.description = description;
         status = TaskStatus.NEW;
+    }
+
+    public Task(String[] list) {
+        counter++;
+        this.id = Long.parseLong(list[0]);
+        this.name = list[2];
+        this.status = TaskStatus.valueOf(list[3]);
+        this.description = list[4];
+
     }
 
     public long getId() {
@@ -46,6 +59,16 @@ public class Task {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public String toString() {
+        List<String> list = new ArrayList<>();
+        list.add(String.valueOf(this.id));
+        list.add(TaskType.valueOf(this.getClass().getSimpleName().toUpperCase()).toString());
+        list.add(this.name);
+        list.add(this.status.toString());
+        list.add(this.description);
+        return String.join(",", list);
     }
 
 }
