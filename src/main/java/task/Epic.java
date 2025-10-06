@@ -1,5 +1,7 @@
 package main.java.task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,8 +10,8 @@ public class Epic extends Task {
 
     private ArrayList<SubTask> subtasks;
 
-    public Epic(String name, String description) {
-        super(name, description);
+    public Epic(String name, String description, Duration duration, LocalDateTime startTime) {
+        super(name, description, duration, startTime);
         subtasks = new ArrayList<>();
     }
 

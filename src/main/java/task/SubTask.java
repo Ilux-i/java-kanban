@@ -1,12 +1,15 @@
 package main.java.task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 // Класс отвечающий за реализацию объекта "Эпик"
 public class SubTask extends Task {
 
     private long idMaster; // Поле, в котором храниться принадлежность подзадачи
 
-    public SubTask(String name, String description, long idMaster) {
-        super(name, description);
+    public SubTask(String name, String description, long idMaster, Duration duration, LocalDateTime startTime) {
+        super(name, description, duration, startTime);
         this.idMaster = idMaster;
     }
 
