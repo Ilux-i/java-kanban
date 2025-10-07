@@ -7,13 +7,13 @@ import main.java.task.SubTask;
 import main.java.task.Task;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static String file;
     private static final String HEADER = "id,type,name,status,description,epic";
+    TreeSet<Task> sortedSet = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     // Удаление всех задач
     @Override
@@ -37,18 +37,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     //Создание задачи
     @Override
     public void addTask(Task task) {
+        sortedSet.add(task);
+
         super.addTask(task);
         save();
     }
 
     @Override
     public void addEpic(Epic epic) {
+        sortedSet.add(epic);
+
         super.addEpic(epic);
         save();
     }
 
     @Override
     public void addSubTask(SubTask subTask) {
+        sortedSet.add(subTask);
+
         super.addSubTask(subTask);
         epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
         save();
@@ -57,18 +63,27 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     // Обновление задачи
     @Override
     public void updateTask(Task task) {
+        sortedSet.remove(tasks.get(task.getId()));
+        sortedSet.add(task);
+
         super.updateTask(task);
         save();
     }
 
     @Override
     public void updateEpic(Epic epic) {
+        sortedSet.remove(epics.get(epic.getId()));
+        sortedSet.add(epic);
+
         super.updateEpic(epic);
         save();
     }
 
     @Override
     public void updateSubTask(SubTask subTask) {
+        sortedSet.remove(subTasks.get(subTask.getId()));
+        sortedSet.add(subTask);
+
         super.updateSubTask(subTask);
         epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
         save();
@@ -77,18 +92,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     // Удаление задачи по id
     @Override
     public void removeTaskById(long id) {
+        sortedSet.remove(tasks.get(id));
+
         super.removeTaskById(id);
         save();
     }
 
     @Override
     public void removeEpicById(long id) {
+        sortedSet.remove(epics.get(id));
+
         super.removeEpicById(id);
         save();
     }
 
     @Override
     public void removeSubTaskById(long id) {
+        sortedSet.remove(subTasks.get(id));
+
         super.removeSubTaskById(id);
         epics.get(subTasks.get(id).getMaster()).checkingTheEpicExecutionTime();
         save();
@@ -136,6 +157,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 switch (TaskType.valueOf(line[1])) {
                     case TaskType.TASK:
                         Task task = new Task(line);
+                        taskManager.sortedSet.add(task);
                         taskManager.tasks.put(task.getId(), task);
                         break;
                     case TaskType.EPIC:
@@ -144,10 +166,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                             list.add(taskManager.subTasks.get(Long.parseLong(line[i])));
                         }
                         Epic epic = new Epic(line, list);
+                        taskManager.sortedSet.add(epic);
                         taskManager.epics.put(epic.getId(), epic);
                         break;
                     case TaskType.SUBTASK:
                         SubTask subTask = new SubTask(line);
+                        taskManager.sortedSet.add(subTask);
                         taskManager.subTasks.put(subTask.getId(), subTask);
                         break;
                 }
@@ -159,6 +183,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         return taskManager;
+    }
+
+    public List<Task> getPrioritizedTasks(){
+         return sortedSet.stream().toList();
     }
 
 }

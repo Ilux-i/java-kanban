@@ -59,6 +59,10 @@ public class Epic extends Task {
             this.duration = Duration.between(startTime.get(), endTime.get());
             this.endTime = endTime.get();
             this.startTime = startTime.get();
+        } else {
+            this.duration = null;
+            this.endTime = null;
+            this.startTime = null;
         }
 
     }
