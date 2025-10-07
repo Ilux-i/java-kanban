@@ -15,7 +15,8 @@ public class SubTask extends Task {
 
     public SubTask(String[] list) {
         super(list);
-        this.idMaster = Long.parseLong(list[5]);
+        this.idMaster = Long.parseLong(list[7]);
+
     }
 
     public long getMaster() {

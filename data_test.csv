@@ -1,5 +1,8 @@
 id,type,name,status,description,epic
-0,TASK,task1,NEW,description4,PT1H30M,21:33 06/10/2025
-1,TASK,task1,NEW,description4,PT1H30M,21:35 06/10/2025
-2,TASK,task1,NEW,description4,PT1H30M,21:35 06/10/2025
-3,TASK,task1,NEW,description4,PT1H30M,21:36 06/10/2025
+3,TASK,task1,NEW,description4,PT1H30M,18:53 07/10/2025
+1,SUBTASK,subtask,NEW,description4,PT30M,13:27 07/10/2025,0
+3,SUBTASK,subtask,NEW,description4,PT40M,13:51 07/10/2025,0
+5,SUBTASK,subtask,NEW,description4,PT30M,18:53 07/10/2025,0
+6,SUBTASK,subtask,NEW,description4,PT30M,18:57 07/10/2025,0
+0,EPIC,epic,NEW,description4,PT6H0.450544S,13:27 07/10/2025,1,3,5,6
+4,EPIC,epic,NEW,description4,PT0S,18:57 07/10/2025,

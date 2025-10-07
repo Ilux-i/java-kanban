@@ -50,6 +50,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void addSubTask(SubTask subTask) {
         super.addSubTask(subTask);
+        epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
         save();
     }
 
@@ -69,6 +70,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void updateSubTask(SubTask subTask) {
         super.updateSubTask(subTask);
+        epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
         save();
     }
 
@@ -88,6 +90,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void removeSubTaskById(long id) {
         super.removeSubTaskById(id);
+        epics.get(subTasks.get(id).getMaster()).checkingTheEpicExecutionTime();
         save();
     }
 
@@ -137,7 +140,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         break;
                     case TaskType.EPIC:
                         ArrayList<SubTask> list = new ArrayList<>();
-                        for (int i = 5; i < line.length; i++) {
+                        for (int i = 7; i < line.length; i++) {
                             list.add(taskManager.subTasks.get(Long.parseLong(line[i])));
                         }
                         Epic epic = new Epic(line, list);

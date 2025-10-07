@@ -9,8 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-// Добавил 2 поля duration и startTime, и обновил создание объекта Task и его преобразования в строку(В файл сохраняется и забирается без проблем) временно замучены файлы тестов по FileBackedTaskManager
-// Доработать логику выполнения работы наследуемых классов
 public class Task {
     protected static final DateTimeFormatter DATA_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
