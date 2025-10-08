@@ -1,13 +1,6 @@
 package main.java;
 
 import main.java.manager.FileBackedTaskManager;
-import main.java.manager.TaskManager;
-import main.java.task.Epic;
-import main.java.task.SubTask;
-import main.java.task.Task;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
@@ -18,6 +11,8 @@ public class Main {
 //        System.out.println(manager.getEpicById(0).getStartTime());
 //        System.out.println(manager.getEpicById(0).getDuration().toMinutes());
 //        System.out.println(manager.getEpicById(0).getEndTime());
-        System.out.println(manager.getPrioritizedTasks());
+//        System.out.println(manager.getPrioritizedTasks());
+
+
     }
 }
