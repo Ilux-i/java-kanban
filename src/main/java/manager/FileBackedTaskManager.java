@@ -6,17 +6,15 @@ import main.java.task.Epic;
 import main.java.task.SubTask;
 import main.java.task.Task;
 
-import javax.swing.text.html.Option;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private static String file;
-    private static final String HEADER = "id,type,name,status,description,epic";
+    private String file;
+    private static final String HEADER = "id,type,name,status,description,duration,startTime,moreInfo";
     TreeSet<Task> sortedSet = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     // Удаление всех задач
@@ -45,7 +43,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (checkingIntersectionsForSortedSet(task)) {
                 throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
             }
-            sortedSet.add(task);
 
             super.addTask(task);
             save();
@@ -67,7 +64,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (checkingIntersectionsForSortedSet(subTask)) {
                 throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
             }
-            sortedSet.add(subTask);
 
             super.addSubTask(subTask);
             epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
@@ -86,7 +82,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (checkingIntersectionsForSortedSet(task)) {
                 throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
             }
-            sortedSet.add(task);
 
             super.updateTask(task);
             save();
@@ -110,7 +105,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (checkingIntersectionsForSortedSet(subTask)) {
                 throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
             }
-            sortedSet.add(subTask);
 
             super.updateSubTask(subTask);
             epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
@@ -167,7 +161,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             List<String> lines = list.values().stream()
                     .map(Object::toString)
                     .toList();
-            Files.write(Paths.get(file), lines);
+            br.write(String.join(",", lines) + System.lineSeparator());
         } catch (IOException e) {
             throw new ManagerSaveException();
         }
@@ -179,18 +173,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String[] line;
-            System.out.println(br.readLine());
+
+            br.readLine();
 
             while (br.ready()) {
                 line = br.readLine().split(",");
-                if (line[0].isEmpty()) {
-                    break;
-                }
 
                 switch (TaskType.valueOf(line[1])) {
                     case TaskType.TASK:
                         Task task = new Task(line);
-                        taskManager.sortedSet.add(task);
+                        taskManager.checkingIntersectionsForSortedSet(task);
                         taskManager.tasks.put(task.getId(), task);
                         break;
                     case TaskType.EPIC:
@@ -199,12 +191,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                             list.add(taskManager.subTasks.get(Long.parseLong(line[i])));
                         }
                         Epic epic = new Epic(line, list);
-                        taskManager.sortedSet.add(epic);
+                        taskManager.checkingIntersectionsForSortedSet(epic);
                         taskManager.epics.put(epic.getId(), epic);
                         break;
                     case TaskType.SUBTASK:
                         SubTask subTask = new SubTask(line);
-                        taskManager.sortedSet.add(subTask);
+                        taskManager.checkingIntersectionsForSortedSet(subTask);
                         taskManager.subTasks.put(subTask.getId(), subTask);
                         break;
                 }
@@ -238,10 +230,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
 //    Проверяет нет ли пересечений по времени выполнения задачи с остальными из sortedSet
     public boolean checkingIntersectionsForSortedSet(Task task){
-        List<Boolean> fall = sortedSet.stream()
-                .map(task1 -> checkingIntersections(task1, task))
-                .toList();
-        return fall.contains(false);
+        if(task.getDuration() == null){
+            return false;
+        } else {
+            List<Boolean> fall = sortedSet.stream()
+                    .map(task1 -> checkingIntersections(task, task1))
+                    .toList();
+            if(!fall.contains(false)){
+                sortedSet.add(task);
+                return false;
+            }
+            return true;
+        }
     }
 
 

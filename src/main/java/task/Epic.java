@@ -13,11 +13,16 @@ public class Epic extends Task {
     private ArrayList<SubTask> subtasks;
     private LocalDateTime endTime;
 
+    public Epic(String name, String description) {
+        super(name, description);
+        subtasks = new ArrayList<>();
+        this.endTime = LocalDateTime.now();
+    }
+
     public Epic(String name, String description, Duration duration, LocalDateTime startTime) {
         super(name, description, duration, startTime);
         subtasks = new ArrayList<>();
-        this.duration = Duration.ZERO;
-        this.endTime = LocalDateTime.of(startTime.toLocalDate(), startTime.toLocalTime());
+        this.endTime = null;
     }
 
     public Epic(String[] list, ArrayList<SubTask> subtasks) {
@@ -46,12 +51,14 @@ public class Epic extends Task {
 
     public void checkingTheEpicExecutionTime(){
         Optional<LocalDateTime> endTime = subtasks.stream()
+                .filter(subTask -> subTask.duration != null)
                 .map(subTask -> subTask.startTime.plus(subTask.duration)).max((endTime1, endTime2) -> {
                     if (endTime1.isBefore(endTime2)) return -1;
                     if (endTime1.isAfter(endTime2)) return 1;
                     return 0;
                 });
         Optional<LocalDateTime> startTime = subtasks.stream()
+                .filter(subTask -> subTask.duration != null)
                 .map(subTask -> subTask.startTime)
                 .min(Comparator.naturalOrder());
 

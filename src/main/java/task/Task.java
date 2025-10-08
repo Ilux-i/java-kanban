@@ -20,6 +20,15 @@ public class Task {
     protected Duration duration;
     protected LocalDateTime startTime;
 
+    public Task(String name, String description) {
+        id = Task.counter++;
+        this.name = name;
+        this.description = description;
+        status = TaskStatus.NEW;
+        this.duration = null;
+        this.startTime = null;
+    }
+
     public Task(String name, String description, Duration duration, LocalDateTime startTime) {
         id = Task.counter++;
         this.name = name;
@@ -35,9 +44,15 @@ public class Task {
         this.name = list[2];
         this.status = TaskStatus.valueOf(list[3]);
         this.description = list[4];
-        this.duration = Duration.parse(list[5]);
-        this.startTime = LocalDateTime.parse(list[6], DATA_TIME_FORMATTER);
+        if(list[5].equals("null")){
+            this.duration = null;
+            this.startTime = null;
+        } else {
+            this.duration = Duration.parse(list[5]);
+            this.startTime = LocalDateTime.parse(list[6], DATA_TIME_FORMATTER);
+        }
     }
+
 
     public long getId() {
         return this.id;
@@ -98,8 +113,15 @@ public class Task {
         list.add(this.name);
         list.add(this.status.toString());
         list.add(this.description);
-        list.add(this.duration.toString());
-        list.add(this.startTime.format(DATA_TIME_FORMATTER));
+
+        if(this.duration == null){
+            list.add("null");
+            list.add("null");
+        } else {
+            list.add(this.duration.toString());
+            list.add(this.startTime.format(DATA_TIME_FORMATTER));
+        }
+
         return String.join(",", list);
     }
 

@@ -37,36 +37,36 @@ class FileBackedTaskManagerTest {
         assertTrue(loadedManager.getListOfSubTasks().isEmpty(), "Список подзадач должен быть пустым");
     }
 
-//    @Test
-//    void shouldSaveAndLoadMultipleTasks() {
-//        Task task = new Task("Task 1", "Description 1");
-//        Epic epic = new Epic("Epic 1", "Description epic");
-//        SubTask subTask = new SubTask("SubTask 1", "Description subtask", epic.getId());
-//        manager.addTask(task);
-//        manager.addEpic(epic);
-//        manager.addSubTask(subTask);
-//
-//
-//        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(testFile.toString());
-//
-//        Task loadedTask = loadedManager.getTaskById(task.getId());
-//        assertTaskEquals(task, loadedTask);
-//
-//        Epic loadedEpic = loadedManager.getEpicById(epic.getId());
-//        assertEpicEquals(epic, loadedEpic);
-//
-//        SubTask loadedSubTask = loadedManager.getSubTaskById(subTask.getId());
-//        assertSubTaskEquals(subTask, loadedSubTask);
-//
-//    }
+    @Test
+    void shouldSaveAndLoadMultipleTasks() {
+        Task task = new Task("Task 1", "Description 1");
+        Epic epic = new Epic("Epic 1", "Description epic");
+        SubTask subTask = new SubTask("SubTask 1", "Description subtask", epic.getId());
+        manager.addTask(task);
+        manager.addEpic(epic);
+        manager.addSubTask(subTask);
+
+
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(testFile.toString());
+
+        Task loadedTask = loadedManager.getTaskById(task.getId());
+        assertTaskEquals(task, loadedTask);
+
+        Epic loadedEpic = loadedManager.getEpicById(epic.getId());
+        assertEpicEquals(epic, loadedEpic);
+
+        SubTask loadedSubTask = loadedManager.getSubTaskById(subTask.getId());
+        assertSubTaskEquals(subTask, loadedSubTask);
+
+    }
 
     @Test
     void shouldLoadMultipleTasksFromFile() throws IOException {
         String testData = """
-                id,type,name,status,description,epic
-                1,TASK,Task_1,NEW,Description 1,
-                2,EPIC,Epic_1,NEW,Description epic,
-                3,SUBTASK,SubTask_1,NEW,Description subtask,2
+                id,type,name,status,description,duration,startTime,moreInfo
+                1,TASK,Task_1,NEW,Description 1,null,null
+                3,SUBTASK,SubTask_1,NEW,Description subtask,null,null,2
+                2,EPIC,Epic_1,NEW,Description epic,null,null,3
                 """;
         Files.writeString(testFile, testData);
 
