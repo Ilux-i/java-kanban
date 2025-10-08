@@ -8,6 +8,7 @@ import main.java.task.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -42,27 +43,29 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех задач
     @Override
     public void clearTasks() {
-        for (Task task : tasks.values()) {
-            removeTaskById(task.getId());
-        }
+        new ArrayList<>(tasks.values()).stream()
+                .map(Task::getId)
+                .forEach(this::removeTaskById);
     }
 
     @Override
     public void clearEpics() {
-        for (Epic epic : epics.values()) {
-            removeEpicById(epic.getId());
-        }
+        new ArrayList<>(epics.values()).stream()
+                .map(Epic::getId)
+                .forEach(this::removeEpicById);
     }
 
     @Override
     public void clearSubTasks() {
-        for (Epic epic : epics.values()) {
-            epic.getSubtasks().clear();
-            epic.setStatus(TaskStatus.NEW);
-        }
-        for (SubTask subTask : subTasks.values()) {
-            removeEpicById(subTask.getId());
-        }
+        // Очищаем подзадачи у всех эпиков и сбрасываем статус
+        epics.values().stream()
+                .peek(epic -> epic.getSubtasks().clear())
+                .forEach(epic -> epic.setStatus(TaskStatus.NEW));
+
+        // Удаляем подзадачи из мапы (исправлено: removeSubTaskById вместо removeEpicById)
+        new ArrayList<>(subTasks.values()).stream()
+                .map(SubTask::getId)
+                .forEach(this::removeSubTaskById);
     }
 
 
@@ -180,11 +183,9 @@ public class InMemoryTaskManager implements TaskManager {
     // Получение подзадач эпика
     @Override
     public List<SubTask> getSubtasks(Epic epic) {
-        ArrayList<SubTask> newSubTasks = new ArrayList<>();
-        for (SubTask subTask : epic.getSubtasks()) {
-            newSubTasks.add(subTasks.get(subTask.getId()));
-        }
-        return newSubTasks;
+        return epic.getSubtasks().stream()
+                .map(subTask -> subTasks.get(subTask.getId()))
+                .collect(Collectors.toList());
     }
 
     // Проверка на статус подзадач и изменение статуса эпика

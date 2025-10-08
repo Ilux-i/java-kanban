@@ -8,7 +8,10 @@ import main.java.task.Task;
 
 import javax.swing.text.html.Option;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
@@ -161,9 +164,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private <T extends Task> void writeTaskToFile(HashMap<Long, T> list) throws ManagerSaveException {
         try (BufferedWriter br = new BufferedWriter(new FileWriter(file, true))) {
-            for (T task : list.values()) {
-                br.write(task.toString() + "\n");
-            }
+            List<String> lines = list.values().stream()
+                    .map(Object::toString)
+                    .toList();
+            Files.write(Paths.get(file), lines);
         } catch (IOException e) {
             throw new ManagerSaveException();
         }
