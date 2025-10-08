@@ -111,7 +111,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubTask(SubTask subTask) {
-        if (subTask.getMaster() != subTask.getId()) {
+        if (subTask.getMaster() != subTask.getId() && epics.containsKey(subTask.getMaster())) {
             Epic epic = epics.get(subTask.getMaster());
             subTasks.put(subTask.getId(), subTask); // добавление в main.java.task
             epic.getSubtasks().add(subTask); // Добавление в subtasks Master

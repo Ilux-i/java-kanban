@@ -44,7 +44,7 @@ public class Task {
         this.name = list[2];
         this.status = TaskStatus.valueOf(list[3]);
         this.description = list[4];
-        if(list[5].equals("null")){
+        if (list[5].equals("null")) {
             this.duration = null;
             this.startTime = null;
         } else {
@@ -102,7 +102,7 @@ public class Task {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime(){
+    public LocalDateTime getEndTime() {
         return startTime.plus(duration);
     }
 
@@ -114,7 +114,7 @@ public class Task {
         list.add(this.status.toString());
         list.add(this.description);
 
-        if(this.duration == null){
+        if (this.duration == null) {
             list.add("null");
             list.add("null");
         } else {

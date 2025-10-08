@@ -36,7 +36,7 @@ public class Epic extends Task {
         return this.subtasks;
     }
 
-    public LocalDateTime getEndTime(){
+    public LocalDateTime getEndTime() {
         return this.endTime;
     }
 
@@ -49,7 +49,7 @@ public class Epic extends Task {
         return str;
     }
 
-    public void checkingTheEpicExecutionTime(){
+    public void checkingTheEpicExecutionTime() {
         Optional<LocalDateTime> endTime = subtasks.stream()
                 .filter(subTask -> subTask.duration != null)
                 .map(subTask -> subTask.startTime.plus(subTask.duration)).max((endTime1, endTime2) -> {
@@ -62,7 +62,7 @@ public class Epic extends Task {
                 .map(subTask -> subTask.startTime)
                 .min(Comparator.naturalOrder());
 
-        if(endTime.isPresent()) {
+        if (endTime.isPresent()) {
             this.duration = Duration.between(startTime.get(), endTime.get());
             this.endTime = endTime.get();
             this.startTime = startTime.get();

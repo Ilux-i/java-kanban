@@ -7,8 +7,6 @@ import main.java.task.SubTask;
 import main.java.task.Task;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -64,7 +62,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (checkingIntersectionsForSortedSet(subTask)) {
                 throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
             }
-
+            if (subTask.getMaster() == subTask.getId()) {
+                throw new ManagerSaveException("Подзадача не может содержаться сама в себе.");
+            }
+            if (!epics.containsKey(subTask.getMaster())) {
+                throw new ManagerSaveException("Подзадача не может быть добавлена к несуществующему эпику");
+            }
             super.addSubTask(subTask);
             epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
             save();
@@ -136,8 +139,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public void removeSubTaskById(long id) {
         sortedSet.remove(subTasks.get(id));
 
+        Epic epic = epics.get(subTasks.get(id).getMaster());
         super.removeSubTaskById(id);
-        epics.get(subTasks.get(id).getMaster()).checkingTheEpicExecutionTime();
+        epic.checkingTheEpicExecutionTime();
         save();
     }
 
@@ -210,16 +214,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return taskManager;
     }
 
-    public List<Task> getPrioritizedTasks(){
-         return sortedSet.stream().toList();
+    public List<Task> getPrioritizedTasks() {
+        return sortedSet.stream().toList();
     }
 
-//    Проверяет нет ли пересечений по времени выполнения задач
-    private boolean checkingIntersections(Task task_1, Task task_2){
-        if(task_1.getEndTime().isAfter(task_2.getEndTime())
-                || task_1.getEndTime().isEqual(task_2.getStartTime())){
+    //    Проверяет нет ли пересечений по времени выполнения задач
+    private boolean checkingIntersections(Task task_1, Task task_2) {
+        if (task_1.getEndTime().isBefore(task_2.getStartTime())
+                || task_1.getEndTime().isEqual(task_2.getStartTime())) {
             return true;
-        } else if (task_2.getEndTime().isAfter(task_1.getEndTime())
+        } else if (task_2.getEndTime().isBefore(task_1.getStartTime())
                 || task_2.getEndTime().isEqual(task_1.getStartTime())) {
             return true;
         } else {
@@ -228,22 +232,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     }
 
-//    Проверяет нет ли пересечений по времени выполнения задачи с остальными из sortedSet
-    public boolean checkingIntersectionsForSortedSet(Task task){
-        if(task.getDuration() == null){
+    //    Проверяет нет ли пересечений по времени выполнения задачи с остальными из sortedSet
+    public boolean checkingIntersectionsForSortedSet(Task task) {
+        if (task.getDuration() == null) {
             return false;
         } else {
             List<Boolean> fall = sortedSet.stream()
                     .map(task1 -> checkingIntersections(task, task1))
                     .toList();
-            if(!fall.contains(false)){
+            if (!fall.contains(false)) {
                 sortedSet.add(task);
                 return false;
             }
             return true;
         }
     }
-
 
 
 }
