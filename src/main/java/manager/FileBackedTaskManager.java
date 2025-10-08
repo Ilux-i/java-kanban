@@ -6,6 +6,7 @@ import main.java.task.Epic;
 import main.java.task.SubTask;
 import main.java.task.Task;
 
+import javax.swing.text.html.Option;
 import java.io.*;
 import java.util.*;
 
@@ -37,56 +38,84 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     //Создание задачи
     @Override
     public void addTask(Task task) {
-        sortedSet.add(task);
+        try {
+            if (checkingIntersectionsForSortedSet(task)) {
+                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
+            }
+            sortedSet.add(task);
 
-        super.addTask(task);
-        save();
+            super.addTask(task);
+            save();
+        } catch (ManagerSaveException e) {
+            e.getMessage();
+        }
+
     }
 
     @Override
     public void addEpic(Epic epic) {
-        sortedSet.add(epic);
-
         super.addEpic(epic);
         save();
     }
 
     @Override
     public void addSubTask(SubTask subTask) {
-        sortedSet.add(subTask);
+        try {
+            if (checkingIntersectionsForSortedSet(subTask)) {
+                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
+            }
+            sortedSet.add(subTask);
 
-        super.addSubTask(subTask);
-        epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
-        save();
+            super.addSubTask(subTask);
+            epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
+            save();
+        } catch (ManagerSaveException e) {
+            e.getMessage();
+        }
     }
 
     // Обновление задачи
     @Override
     public void updateTask(Task task) {
-        sortedSet.remove(tasks.get(task.getId()));
-        sortedSet.add(task);
+        Task task1 = tasks.get(task.getId());
+        sortedSet.remove(task1);
+        try {
+            if (checkingIntersectionsForSortedSet(task)) {
+                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
+            }
+            sortedSet.add(task);
 
-        super.updateTask(task);
-        save();
+            super.updateTask(task);
+            save();
+        } catch (ManagerSaveException e) {
+            e.getMessage();
+            sortedSet.add(task1);
+        }
     }
 
     @Override
     public void updateEpic(Epic epic) {
-        sortedSet.remove(epics.get(epic.getId()));
-        sortedSet.add(epic);
-
         super.updateEpic(epic);
         save();
     }
 
     @Override
     public void updateSubTask(SubTask subTask) {
-        sortedSet.remove(subTasks.get(subTask.getId()));
-        sortedSet.add(subTask);
+        Task subTask1 = tasks.get(subTask.getId());
+        sortedSet.remove(subTask1);
+        try {
+            if (checkingIntersectionsForSortedSet(subTask)) {
+                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
+            }
+            sortedSet.add(subTask);
 
-        super.updateSubTask(subTask);
-        epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
-        save();
+            super.updateSubTask(subTask);
+            epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
+            save();
+        } catch (ManagerSaveException e) {
+            e.getMessage();
+            sortedSet.add(subTask1);
+        }
     }
 
     // Удаление задачи по id
@@ -188,5 +217,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public List<Task> getPrioritizedTasks(){
          return sortedSet.stream().toList();
     }
+
+//    Проверяет нет ли пересечений по времени выполнения задач
+    private boolean checkingIntersections(Task task_1, Task task_2){
+        if(task_1.getEndTime().isAfter(task_2.getEndTime())
+                || task_1.getEndTime().isEqual(task_2.getStartTime())){
+            return true;
+        } else if (task_2.getEndTime().isAfter(task_1.getEndTime())
+                || task_2.getEndTime().isEqual(task_1.getStartTime())) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+//    Проверяет нет ли пересечений по времени выполнения задачи с остальными из sortedSet
+    public boolean checkingIntersectionsForSortedSet(Task task){
+        List<Boolean> fall = sortedSet.stream()
+                .map(task1 -> checkingIntersections(task1, task))
+                .toList();
+        return fall.contains(false);
+    }
+
+
 
 }

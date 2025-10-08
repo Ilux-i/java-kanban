@@ -37,7 +37,6 @@ public class Task {
         this.description = list[4];
         this.duration = Duration.parse(list[5]);
         this.startTime = LocalDateTime.parse(list[6], DATA_TIME_FORMATTER);
-
     }
 
     public long getId() {
