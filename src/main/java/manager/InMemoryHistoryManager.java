@@ -33,10 +33,12 @@ public class InMemoryHistoryManager implements HistoryManager {
         List<Task> tasks = new ArrayList<>();
         Node node = head;
         while (node.getPrev() != null) {
-            tasks.add(node.getCore());
+            if (node.getCore() != null) {
+                tasks.add(node.getCore());
+            }
             node = node.getPrev();
         }
-        return tasks;
+        return tasks.reversed();
     }
 
     @Override
