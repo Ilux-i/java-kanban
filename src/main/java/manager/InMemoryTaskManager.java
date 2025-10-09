@@ -1,13 +1,12 @@
 package main.java.manager;// Сервис для работы с Задачами
 
+import main.java.exception.ManagerSaveException;
 import main.java.status.TaskStatus;
 import main.java.task.Epic;
 import main.java.task.SubTask;
 import main.java.task.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -17,6 +16,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Long, Epic> epics = new HashMap<>();
     protected HashMap<Long, SubTask> subTasks = new HashMap<>();
     protected HistoryManager historyManager = Managers.getDefaultHistory();
+    protected TreeSet<Task> sortedSet = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+
 
     // Получение всех задач
     @Override
@@ -216,6 +217,38 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(TaskStatus.DONE);
         } else {
             epic.setStatus(TaskStatus.IN_PROGRESS);
+        }
+    }
+
+    public List<Task> getPrioritizedTasks() {
+        return sortedSet.stream().toList();
+    }
+
+    //    Проверяет нет ли пересечений по времени выполнения задач
+    private boolean checkingIntersections(Task task_1, Task task_2) {
+        if (task_1.getEndTime().isBefore(task_2.getStartTime())
+                || task_1.getEndTime().isEqual(task_2.getStartTime())) {
+            return true;
+        } else if (task_2.getEndTime().isBefore(task_1.getStartTime())
+                || task_2.getEndTime().isEqual(task_1.getStartTime())) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    //    Проверяет нет ли пересечений по времени выполнения задачи с остальными из sortedSet
+    public void checkingIntersectionsForSortedSet(Task task) throws ManagerSaveException {
+        if (task.getDuration() != null) {
+            List<Boolean> fall = sortedSet.stream()
+                    .map(task1 -> checkingIntersections(task, task1))
+                    .toList();
+            if (!fall.contains(false)) {
+                sortedSet.add(task);
+            } else {
+                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
+            }
         }
     }
 

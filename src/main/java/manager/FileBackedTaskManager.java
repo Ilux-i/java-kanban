@@ -13,7 +13,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private String file;
     private static final String HEADER = "id,type,name,status,description,duration,startTime,moreInfo";
-    TreeSet<Task> sortedSet = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     // Удаление всех задач
     @Override
@@ -38,9 +37,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void addTask(Task task) {
         try {
-            if (checkingIntersectionsForSortedSet(task)) {
-                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
-            }
+            checkingIntersectionsForSortedSet(task);
 
             super.addTask(task);
             save();
@@ -59,9 +56,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void addSubTask(SubTask subTask) {
         try {
-            if (checkingIntersectionsForSortedSet(subTask)) {
-                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
-            }
+            checkingIntersectionsForSortedSet(subTask);
+
             if (subTask.getMaster() == subTask.getId()) {
                 throw new ManagerSaveException("Подзадача не может содержаться сама в себе.");
             }
@@ -82,9 +78,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         Task task1 = tasks.get(task.getId());
         sortedSet.remove(task1);
         try {
-            if (checkingIntersectionsForSortedSet(task)) {
-                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
-            }
+            checkingIntersectionsForSortedSet(task);
 
             super.updateTask(task);
             save();
@@ -105,9 +99,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         Task subTask1 = tasks.get(subTask.getId());
         sortedSet.remove(subTask1);
         try {
-            if (checkingIntersectionsForSortedSet(subTask)) {
-                throw new ManagerSaveException("Задача не добавлена, так как пересекается по времени выполнения с другими задачами.");
-            }
+            checkingIntersectionsForSortedSet(subTask);
 
             super.updateSubTask(subTask);
             epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
@@ -186,7 +178,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 switch (TaskType.valueOf(line[1])) {
                     case TaskType.TASK:
                         Task task = new Task(line);
-                        taskManager.checkingIntersectionsForSortedSet(task);
+                        taskManager.addTask(task);
                         taskManager.tasks.put(task.getId(), task);
                         break;
                     case TaskType.EPIC:
@@ -195,12 +187,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                             list.add(taskManager.subTasks.get(Long.parseLong(line[i])));
                         }
                         Epic epic = new Epic(line, list);
-                        taskManager.checkingIntersectionsForSortedSet(epic);
+                        taskManager.addEpic(epic);
                         taskManager.epics.put(epic.getId(), epic);
                         break;
                     case TaskType.SUBTASK:
                         SubTask subTask = new SubTask(line);
-                        taskManager.checkingIntersectionsForSortedSet(subTask);
+                        taskManager.addSubTask(subTask);
                         taskManager.subTasks.put(subTask.getId(), subTask);
                         break;
                 }
@@ -213,40 +205,5 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         return taskManager;
     }
-
-    public List<Task> getPrioritizedTasks() {
-        return sortedSet.stream().toList();
-    }
-
-    //    Проверяет нет ли пересечений по времени выполнения задач
-    private boolean checkingIntersections(Task task_1, Task task_2) {
-        if (task_1.getEndTime().isBefore(task_2.getStartTime())
-                || task_1.getEndTime().isEqual(task_2.getStartTime())) {
-            return true;
-        } else if (task_2.getEndTime().isBefore(task_1.getStartTime())
-                || task_2.getEndTime().isEqual(task_1.getStartTime())) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
-    //    Проверяет нет ли пересечений по времени выполнения задачи с остальными из sortedSet
-    public boolean checkingIntersectionsForSortedSet(Task task) {
-        if (task.getDuration() == null) {
-            return false;
-        } else {
-            List<Boolean> fall = sortedSet.stream()
-                    .map(task1 -> checkingIntersections(task, task1))
-                    .toList();
-            if (!fall.contains(false)) {
-                sortedSet.add(task);
-                return false;
-            }
-            return true;
-        }
-    }
-
 
 }

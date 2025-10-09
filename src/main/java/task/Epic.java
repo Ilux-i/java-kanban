@@ -2,10 +2,7 @@ package main.java.task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Epic extends Task {
@@ -63,7 +60,12 @@ public class Epic extends Task {
                 .min(Comparator.naturalOrder());
 
         if (endTime.isPresent()) {
-            this.duration = Duration.between(startTime.get(), endTime.get());
+            this.duration = Duration.ofMinutes(
+                    subtasks.stream()
+                            .filter(Objects::nonNull)
+                            .mapToInt(subtask -> Math.toIntExact(subtask.duration.toMinutes()))
+                            .sum()
+            );
             this.endTime = endTime.get();
             this.startTime = startTime.get();
         } else {
