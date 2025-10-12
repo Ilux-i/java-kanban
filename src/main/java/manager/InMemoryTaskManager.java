@@ -102,7 +102,14 @@ public class InMemoryTaskManager implements TaskManager {
     //Создание задачи
     @Override
     public void addTask(Task task) {
-        tasks.put(task.getId(), task);
+        try {
+            checkingIntersectionsForSortedSet(task);
+
+            tasks.put(task.getId(), task);
+        } catch (ManagerSaveException e) {
+            e.getMessage();
+        }
+
     }
 
     @Override
@@ -112,20 +119,42 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void addSubTask(SubTask subTask) {
-        if (subTask.getMaster() != subTask.getId() && epics.containsKey(subTask.getMaster())) {
+        try {
+            checkingIntersectionsForSortedSet(subTask);
+
+            if (subTask.getMaster() == subTask.getId()) {
+                throw new ManagerSaveException("Подзадача не может содержаться сама в себе.");
+            }
+            if (!epics.containsKey(subTask.getMaster())) {
+                throw new ManagerSaveException("Подзадача не может быть добавлена к несуществующему эпику");
+            }
             Epic epic = epics.get(subTask.getMaster());
             subTasks.put(subTask.getId(), subTask); // добавление в main.java.task
             epic.getSubtasks().add(subTask); // Добавление в subtasks Master
             checkStatus(epic); // Обновление статуса Master
+            epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
+        } catch (ManagerSaveException e) {
+            e.getMessage();
         }
     }
+
 
     // Обновление задачи
     @Override
     public void updateTask(Task task) {
-        if (tasks.containsKey(task.getId())) {
-            tasks.put(task.getId(), task);
+        Task task1 = tasks.get(task.getId());
+        sortedSet.remove(task1);
+        try {
+            checkingIntersectionsForSortedSet(task);
+
+            if (tasks.containsKey(task.getId())) {
+                tasks.put(task.getId(), task);
+            }
+        } catch (ManagerSaveException e) {
+            e.getMessage();
+            sortedSet.add(task1);
         }
+
     }
 
     @Override
@@ -137,16 +166,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubTask(SubTask subTask) {
-        if (subTasks.containsKey(subTask.getId())) {
-            subTasks.put(subTask.getId(), subTask); // добавление в main.java.task
-            checkStatus(epics.get(subTask.getMaster())); // Обновление статуса Master
+        Task subTask1 = tasks.get(subTask.getId());
+        sortedSet.remove(subTask1);
+        try {
+            checkingIntersectionsForSortedSet(subTask);
+
+            if (subTasks.containsKey(subTask.getId())) {
+                subTasks.put(subTask.getId(), subTask); // добавление в main.java.task
+                checkStatus(epics.get(subTask.getMaster())); // Обновление статуса Master
+            }
+        } catch (ManagerSaveException e) {
+            e.getMessage();
+            sortedSet.add(subTask1);
         }
     }
+
 
     // Удаление задачи по id
     @Override
     public void removeTaskById(long id) {
         Task task = tasks.get(id);
+        sortedSet.remove(task);
         while (historyManager.getHistory().contains(task)) {
             historyManager.remove(task.getId());
         }
@@ -156,6 +196,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeEpicById(long id) {
         Epic epic = epics.get(id);
+        sortedSet.remove(epic);
         while (historyManager.getHistory().contains(epic)) {
             historyManager.remove(epic.getId());
         }
@@ -171,8 +212,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeSubTaskById(long id) {
         SubTask subTask = subTasks.get(id);
+        sortedSet.remove(subTasks.get(id));
         Epic epic = epics.get(subTask.getMaster());
         epic.getSubtasks().remove(subTask);
+        epic.checkingTheEpicExecutionTime();
         while (historyManager.getHistory().contains(subTask)) {
             historyManager.remove(subTask.getId());
         }

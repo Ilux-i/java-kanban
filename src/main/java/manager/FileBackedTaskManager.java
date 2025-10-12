@@ -36,15 +36,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     //Создание задачи
     @Override
     public void addTask(Task task) {
-        try {
-            checkingIntersectionsForSortedSet(task);
-
-            super.addTask(task);
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-        }
-
+        super.addTask(task);
+        save();
     }
 
     @Override
@@ -55,37 +48,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public void addSubTask(SubTask subTask) {
-        try {
-            checkingIntersectionsForSortedSet(subTask);
-
-            if (subTask.getMaster() == subTask.getId()) {
-                throw new ManagerSaveException("Подзадача не может содержаться сама в себе.");
-            }
-            if (!epics.containsKey(subTask.getMaster())) {
-                throw new ManagerSaveException("Подзадача не может быть добавлена к несуществующему эпику");
-            }
-            super.addSubTask(subTask);
-            epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-        }
+        super.addSubTask(subTask);
+        save();
     }
 
     // Обновление задачи
     @Override
     public void updateTask(Task task) {
-        Task task1 = tasks.get(task.getId());
-        sortedSet.remove(task1);
-        try {
-            checkingIntersectionsForSortedSet(task);
-
-            super.updateTask(task);
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-            sortedSet.add(task1);
-        }
+        super.updateTask(task);
+        save();
     }
 
     @Override
@@ -96,44 +67,26 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public void updateSubTask(SubTask subTask) {
-        Task subTask1 = tasks.get(subTask.getId());
-        sortedSet.remove(subTask1);
-        try {
-            checkingIntersectionsForSortedSet(subTask);
-
-            super.updateSubTask(subTask);
-            epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
-            save();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
-            sortedSet.add(subTask1);
-        }
+        super.updateSubTask(subTask);
+        save();
     }
 
     // Удаление задачи по id
     @Override
     public void removeTaskById(long id) {
-        sortedSet.remove(tasks.get(id));
-
         super.removeTaskById(id);
         save();
     }
 
     @Override
     public void removeEpicById(long id) {
-        sortedSet.remove(epics.get(id));
-
         super.removeEpicById(id);
         save();
     }
 
     @Override
     public void removeSubTaskById(long id) {
-        sortedSet.remove(subTasks.get(id));
-
-        Epic epic = epics.get(subTasks.get(id).getMaster());
         super.removeSubTaskById(id);
-        epic.checkingTheEpicExecutionTime();
         save();
     }
 
