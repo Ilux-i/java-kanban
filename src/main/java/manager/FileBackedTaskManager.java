@@ -7,13 +7,12 @@ import main.java.task.SubTask;
 import main.java.task.Task;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private static String file;
-    private static final String HEADER = "id,type,name,status,description,epic";
+    private String file;
+    private static final String HEADER = "id,type,name,status,description,duration,startTime,moreInfo";
 
     // Удаление всех задач
     @Override
@@ -108,9 +107,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private <T extends Task> void writeTaskToFile(HashMap<Long, T> list) throws ManagerSaveException {
         try (BufferedWriter br = new BufferedWriter(new FileWriter(file, true))) {
-            for (T task : list.values()) {
-                br.write(task.toString() + "\n");
-            }
+            List<String> lines = list.values().stream()
+                    .map(Object::toString)
+                    .toList();
+            br.write(String.join(",", lines) + System.lineSeparator());
         } catch (IOException e) {
             throw new ManagerSaveException();
         }
@@ -122,29 +122,30 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String[] line;
-            System.out.println(br.readLine());
+
+            br.readLine();
 
             while (br.ready()) {
                 line = br.readLine().split(",");
-                if (line[0].isEmpty()) {
-                    break;
-                }
 
                 switch (TaskType.valueOf(line[1])) {
                     case TaskType.TASK:
                         Task task = new Task(line);
+                        taskManager.addTask(task);
                         taskManager.tasks.put(task.getId(), task);
                         break;
                     case TaskType.EPIC:
                         ArrayList<SubTask> list = new ArrayList<>();
-                        for (int i = 5; i < line.length; i++) {
+                        for (int i = 7; i < line.length; i++) {
                             list.add(taskManager.subTasks.get(Long.parseLong(line[i])));
                         }
                         Epic epic = new Epic(line, list);
+                        taskManager.addEpic(epic);
                         taskManager.epics.put(epic.getId(), epic);
                         break;
                     case TaskType.SUBTASK:
                         SubTask subTask = new SubTask(line);
+                        taskManager.addSubTask(subTask);
                         taskManager.subTasks.put(subTask.getId(), subTask);
                         break;
                 }
