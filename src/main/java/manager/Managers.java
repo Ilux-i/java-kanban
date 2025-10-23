@@ -10,5 +10,5 @@ public class Managers {
         return new InMemoryHistoryManager();
     }
 
-    public static FileBackedTaskManager getDefaultFileBackedTaskManager() { return new FileBackedTaskManager(); }
+    public static FileBackedTaskManager getDefaultFileBackedTaskManager() { return FileBackedTaskManager.loadFromFile("data_test.csv"); }
 }

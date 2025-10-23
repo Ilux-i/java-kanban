@@ -1,35 +1,35 @@
 package main.java.server.handler;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
+import main.java.task.SubTask;
 import main.java.task.Task;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class TaskHandler extends BaseHttpHandler {
+public class SubtaskHandler extends BaseHttpHandler{
 
     @Override
-    public void handle(HttpExchange exchange) {
+    public void handle(HttpExchange exchange){
         try {
             String method = exchange.getRequestMethod();
             switch (method) {
                 case "GET":
                     if (exchange.getRequestURI().getPath().split("/").length > 2) {
-                        handleGetTaskById(exchange);
+                        handleGetSubtaskById(exchange);
                     } else {
-                        handleGetTasks(exchange);
+                        handleGetSubtasks(exchange);
                     }
                     break;
                 case "POST":
-                    handlePostTask(exchange);
+                    handlePostSubtask(exchange);
                     break;
                 case "DELETE":
-                    handleDeleteTask(exchange);
+                    handleDeleteSubtask(exchange);
                     break;
                 default:
                     throw new Exception("Unsupported HTTP method: " + method);
@@ -39,49 +39,45 @@ public class TaskHandler extends BaseHttpHandler {
         }
     }
 
-    private void handleGetTasks(HttpExchange exchange){
+    private void handleGetSubtasks(HttpExchange exchange){
         Gson gson = new Gson();
-        List<Task> tasks = manager.getListOfTasks();
+        List<SubTask> tasks = manager.getListOfSubTasks();
         sendText(exchange,
                 gson.toJson(tasks),
                 200);
     }
 
-    private void handleGetTaskById(HttpExchange exchange){
+    private void handleGetSubtaskById(HttpExchange exchange){
         Gson gson = new Gson();
-        Task task = manager.getTaskById(getId(exchange));
+        SubTask subtask = manager.getSubTaskById(getId(exchange));
         sendText(exchange,
-                gson.toJson(task),
+                gson.toJson(subtask),
                 200);
     }
 
-    private void handlePostTask(HttpExchange exchange){
+    private void handlePostSubtask(HttpExchange exchange){
         JsonObject data = JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject();
         String name = data.get("name").getAsString();
         String description = data.get("description").getAsString();
-        Task task = new Task(name, description);
+        int idMaster = data.get("idMaster").getAsInt();
+        SubTask subtask = new SubTask(name, description, idMaster);
         if(data.has("duration")) {
             Duration duration = Duration.parse(data.get("duration").toString());
             LocalDateTime startTime = LocalDateTime.parse(data.get("startTime").getAsString());
-            task = new Task(name, description, duration, startTime);
+            subtask = new SubTask(name, description, idMaster, duration, startTime);
         }
         if (data.has("id")) {
-            task.setId(data.get("id").getAsLong());
-            manager.updateTask(task);
+            subtask.setId(data.get("id").getAsLong());
+            manager.updateTask(subtask);
         } else {
-            manager.addTask(task);
+            manager.addTask(subtask);
         }
-        sendText(exchange,
-                "",
-                201);
+        sendText(exchange, "", 201);
     }
 
-    private void handleDeleteTask(HttpExchange exchange){
-        manager.removeTaskById(getId(exchange));
-        sendText(exchange,
-                "",
-                200);
+    private void handleDeleteSubtask(HttpExchange exchange){
+        manager.removeSubTaskById(getId(exchange));
+        sendText(exchange, "", 200);
     }
-
 
 }

@@ -21,6 +21,18 @@ public class BaseHttpHandler implements HttpHandler {
             throw new RuntimeException("Ошибка при добавлении текста в ответ в sendText");
         }
     }
+    
+    @Override
+    public void handle(HttpExchange exchange) throws IOException {
+
+    }
+
+    protected long getId(HttpExchange exchange){
+        return Long.parseLong(exchange.
+                getRequestURI().
+                getPath().
+                split("/")[2]);
+    }
 
     protected String getRequestBody(HttpExchange exchange) {
         StringBuilder jsonBuilder = new StringBuilder();
@@ -36,26 +48,10 @@ public class BaseHttpHandler implements HttpHandler {
         return jsonBuilder.toString();
     }
 
-    protected void sendNotFound(HttpExchange h) throws IOException {
-        h.sendResponseHeaders(404, 0);
-        h.close();
-    }
-
-    protected void sendHasOverlaps(HttpExchange h) throws IOException {
-        h.sendResponseHeaders(406, 0);
-        h.close();
-    }
-
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-
-    }
-
-    protected long getId(HttpExchange exchange){
-        return Long.parseLong(exchange.
-                getRequestURI().
-                getPath().
-                split("/")[2]);
+    protected void handleException(Exception exception, HttpExchange exchange){
+        sendText(exchange,
+                exception.getMessage(),
+                500);
     }
 
 }

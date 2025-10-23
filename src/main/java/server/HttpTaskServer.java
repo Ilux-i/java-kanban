@@ -1,8 +1,7 @@
 package main.java.server;
 
 import com.sun.net.httpserver.HttpServer;
-import main.java.server.handler.BaseHttpHandler;
-import main.java.server.handler.TaskHandler;
+import main.java.server.handler.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,18 +13,16 @@ public class HttpTaskServer {
 
     public static void main(String[] args) {
         start();
-
-        close();
     }
 
     private static void start(){
         try {
             server = HttpServer.create(new InetSocketAddress(PORT), 0);
             server.createContext("/tasks", new TaskHandler());
-            server.createContext("/epics", new BaseHttpHandler());
-            server.createContext("/subtasks", new BaseHttpHandler());
-            server.createContext("/history", new TaskHandler());
-            server.createContext("/prioritized", new BaseHttpHandler());
+            server.createContext("/epics", new EpicHandler());
+            server.createContext("/subtasks", new SubtaskHandler());
+            server.createContext("/history", new HistoryHandler());
+            server.createContext("/prioritized", new PrioritizedHandler());
             server.start();
             System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
         } catch (IOException e) {
