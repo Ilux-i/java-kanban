@@ -2,22 +2,28 @@ package main.java.server.handler;
 
 import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
+import main.java.exception.ManagerSaveException;
+import main.java.server.handler.adapter.DurationTypeAdapter;
+import main.java.server.handler.adapter.EpicTypeAdapter;
+import main.java.server.handler.adapter.LocalDateTimeTypeAdapter;
 import main.java.task.Epic;
-import main.java.task.SubTask;
-import main.java.task.Task;
 
-import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-public class EpicHandler extends  BaseHttpHandler{
+import java.time.LocalDateTime;
+import java.util.List;
+
+public class EpicHandler extends BaseHttpHandler {
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
+            .registerTypeAdapter(EPIC_TYPE, new EpicTypeAdapter())
+            .setPrettyPrinting()
+            .create();
 
     @Override
-    public void handle(HttpExchange exchange){
+    public void handle(HttpExchange exchange) {
         try {
             String method = exchange.getRequestMethod();
             switch (method) {
@@ -44,62 +50,39 @@ public class EpicHandler extends  BaseHttpHandler{
         }
     }
 
-    private void handleGetEpicById(HttpExchange exchange) {
-        Gson gson = new Gson();
-        List<Epic> epics = manager.getListOfEpics();
+    private void handleGetEpicById(HttpExchange exchange) throws ManagerSaveException {
+        Epic epics = manager.getEpicById(getId(exchange));
         sendText(exchange,
-                gson.toJson(epics),
+                gson.toJson(epics, EPIC_TYPE),
                 200);
     }
 
-    private void handleGetEpics(HttpExchange exchange) {
-        Gson gson = new Gson();
+    private void handleGetEpics(HttpExchange exchange) throws ManagerSaveException {
+        List<Epic> epic = manager.getListOfEpics();
+        sendText(exchange,
+                gson.toJson(epic, EPIC_LIST_TYPE),
+                200);
+    }
+
+    private void handleGetEpicSubtasks(HttpExchange exchange) throws ManagerSaveException {
         Epic epic = manager.getEpicById(getId(exchange));
         sendText(exchange,
-                gson.toJson(epic),
+                gson.toJson(epic.getSubtasks(), SUBTASK_LIST_TYPE),
                 200);
     }
 
-    private void handleGetEpicSubtasks(HttpExchange exchange) {
-        Gson gson = new Gson();
-        JsonObject data = JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject();
-        Epic epic = manager.getEpicById(getId(exchange));
-        sendText(exchange,
-                gson.toJson(epic.getSubtasks()),
-                200);
-    }
+    private void handlePostEpic(HttpExchange exchange) throws ManagerSaveException {
+        String body = getRequestBody(exchange);
+        Epic epic = gson.fromJson(body, Epic.class);
 
-    private void handlePostEpic(HttpExchange exchange) {
-        Gson gson = new Gson();
-        JsonObject data = JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject();
-        String name = data.get("name").getAsString();
-        String description = data.get("description").getAsString();
-        Epic epic = new Epic(name, description);
-
-        if(data.has("duration")){
-            Duration duration = Duration.parse(data.get("duration").toString());
-            LocalDateTime startTime = LocalDateTime.parse(data.get("startTime").getAsString());
-            epic = new Epic(name, description, duration, startTime);
-        }
-
-        if(data.has("id")) {
-            epic.setId(data.get("id").getAsLong());
-            epic.setSubtasks(StreamSupport
-                    .stream(
-                            data.get("subtasks")
-                                    .getAsJsonArray()
-                                    .spliterator(), false
-                    )
-                    .map((JsonElement t) -> gson.fromJson(t, SubTask.class))
-                    .collect(Collectors.toCollection(ArrayList::new)));
-            manager.updateEpic(epic);
-        } else {
-            manager.addEpic(epic);
-        }
+//        if(JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject().has("id")) {
+//            manager.updateEpic(epic);
+//        } else {
+        manager.addEpic(epic);
         sendText(exchange, "", 201);
     }
 
-    private void handleDeleteEpic(HttpExchange exchange) {
+    private void handleDeleteEpic(HttpExchange exchange) throws ManagerSaveException {
         manager.removeEpicById(getId(exchange));
         sendText(exchange, "", 200);
     }

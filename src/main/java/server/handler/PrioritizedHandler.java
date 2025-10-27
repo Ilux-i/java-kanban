@@ -1,12 +1,21 @@
 package main.java.server.handler;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
+import main.java.server.handler.adapter.DurationTypeAdapter;
+import main.java.server.handler.adapter.LocalDateTimeTypeAdapter;
 
 import java.io.IOException;
-import java.util.logging.Handler;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class PrioritizedHandler extends BaseHttpHandler {
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
+            .create();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -23,9 +32,8 @@ public class PrioritizedHandler extends BaseHttpHandler {
     }
 
     private void handleGetPrioritized(HttpExchange exchange) {
-        Gson gson = new Gson();
         sendText(exchange,
-                gson.toJson(manager.getPrioritizedTasks()),
+                gson.toJson(manager.getPrioritizedTasks(), TASK_LIST_TYPE),
                 200);
     }
 

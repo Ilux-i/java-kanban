@@ -1,5 +1,8 @@
 package main.java.manager;
 
+import main.java.exception.ManagerSaveException;
+
+
 public class Managers {
 
     public static TaskManager getDefault() {
@@ -10,5 +13,7 @@ public class Managers {
         return new InMemoryHistoryManager();
     }
 
-    public static FileBackedTaskManager getDefaultFileBackedTaskManager() { return FileBackedTaskManager.loadFromFile("data_test.csv"); }
+    public static FileBackedTaskManager getDefaultFileBackedTaskManager(String file) throws ManagerSaveException {
+        return FileBackedTaskManager.loadFromFile(file);
+    }
 }

@@ -1,6 +1,8 @@
 package main.java.server;
 
 import com.sun.net.httpserver.HttpServer;
+import main.java.exception.ManagerSaveException;
+import main.java.manager.FileBackedTaskManager;
 import main.java.server.handler.*;
 
 import java.io.IOException;
@@ -8,14 +10,16 @@ import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
 
+    public static FileBackedTaskManager manager;
+
     private static final int PORT = 8080;
     private static HttpServer server;
 
     public static void main(String[] args) {
-        start();
+        start("data.csv");
     }
 
-    private static void start(){
+    public static void start(String file) {
         try {
             server = HttpServer.create(new InetSocketAddress(PORT), 0);
             server.createContext("/tasks", new TaskHandler());
@@ -24,13 +28,15 @@ public class HttpTaskServer {
             server.createContext("/history", new HistoryHandler());
             server.createContext("/prioritized", new PrioritizedHandler());
             server.start();
+            manager = FileBackedTaskManager.loadFromFile(file);
+            BaseHttpHandler.manager = manager;
             System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
-        } catch (IOException e) {
+        } catch (IOException | ManagerSaveException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void close(){
+    public static void stop() {
         server.stop(0);
     }
 }

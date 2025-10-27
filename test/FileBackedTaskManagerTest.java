@@ -1,5 +1,6 @@
 package main.java.test;
 
+import main.java.exception.ManagerSaveException;
 import main.java.manager.FileBackedTaskManager;
 import main.java.task.Epic;
 import main.java.task.SubTask;
@@ -23,20 +24,20 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     private Path testFile;
 
     @Override
-    protected FileBackedTaskManager createManager() throws IOException {
+    protected FileBackedTaskManager createManager() throws IOException, ManagerSaveException {
         return FileBackedTaskManager.loadFromFile(testFile.toString());
     }
 
     @BeforeEach
     @Override
-    void reset() throws IOException {
+    void reset() throws IOException, ManagerSaveException {
         testFile = tempDir.resolve("data.csv");
         Files.createFile(testFile);
         manager = createManager();
     }
 
     @Test
-    void shouldSaveAndLoadEmptyFile() {
+    void shouldSaveAndLoadEmptyFile() throws ManagerSaveException {
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(testFile.toString());
 
         assertTrue(loadedManager.getListOfTasks().isEmpty(), "Список задач должен быть пустым");
@@ -45,7 +46,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldSaveAndLoadMultipleTasks() {
+    void shouldSaveAndLoadMultipleTasks() throws ManagerSaveException {
         Task task = new Task("Task 1", "Description 1");
         Epic epic = new Epic("Epic 1", "Description epic");
         SubTask subTask = new SubTask("SubTask 1", "Description subtask", epic.getId());
@@ -68,7 +69,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldLoadMultipleTasksFromFile() throws IOException {
+    void shouldLoadMultipleTasksFromFile() throws IOException, ManagerSaveException {
         String testData = """
                 id,type,name,status,description,duration,startTime,moreInfo
                 1,TASK,Task_1,NEW,Description 1,null,null
@@ -92,7 +93,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldNotAllowTasksWithOverlappingIntervals() {
+    void shouldNotAllowTasksWithOverlappingIntervals() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         task1.setStartTime(LocalDateTime.of(2024, 1, 1, 10, 0));
         task1.setDuration(Duration.ofHours(2)); // 10:00 - 12:00
@@ -110,7 +111,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldAllowTasksWithNonOverlappingIntervals() {
+    void shouldAllowTasksWithNonOverlappingIntervals() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         task1.setStartTime(LocalDateTime.of(2024, 1, 1, 10, 0));
         task1.setDuration(Duration.ofHours(1)); // 10:00 - 11:00
@@ -128,7 +129,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldNotAllowSubTasksWithOverlappingIntervals() {
+    void shouldNotAllowSubTasksWithOverlappingIntervals() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
 
@@ -149,7 +150,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldAllowTasksWithoutTimeIntervals() {
+    void shouldAllowTasksWithoutTimeIntervals() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         Task task2 = new Task("Task 2", "Description 2");
 
@@ -162,7 +163,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldReturnPrioritizedTasksInCorrectOrder() {
+    void shouldReturnPrioritizedTasksInCorrectOrder() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         task1.setStartTime(LocalDateTime.of(2024, 1, 1, 12, 0));
         task1.setDuration(Duration.ofHours(1));
@@ -181,7 +182,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldHandleComplexIntervalScenarios() {
+    void shouldHandleComplexIntervalScenarios() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         task1.setStartTime(LocalDateTime.of(2024, 1, 1, 9, 0));
         task1.setDuration(Duration.ofHours(3)); // 9:00 - 12:00

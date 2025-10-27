@@ -1,20 +1,29 @@
 package main.java.server.handler;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
+import main.java.exception.ManagerSaveException;
+import main.java.server.handler.adapter.DurationTypeAdapter;
+import main.java.server.handler.adapter.LocalDateTimeTypeAdapter;
+import main.java.server.handler.adapter.SubTaskTypeAdapter;
 import main.java.task.SubTask;
-import main.java.task.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class SubtaskHandler extends BaseHttpHandler{
+public class SubtaskHandler extends BaseHttpHandler {
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
+            .registerTypeAdapter(SubTask.class, new SubTaskTypeAdapter())
+            .setPrettyPrinting()
+            .create();
 
     @Override
-    public void handle(HttpExchange exchange){
+    public void handle(HttpExchange exchange) {
         try {
             String method = exchange.getRequestMethod();
             switch (method) {
@@ -39,43 +48,33 @@ public class SubtaskHandler extends BaseHttpHandler{
         }
     }
 
-    private void handleGetSubtasks(HttpExchange exchange){
-        Gson gson = new Gson();
+    private void handleGetSubtasks(HttpExchange exchange) throws ManagerSaveException {
         List<SubTask> tasks = manager.getListOfSubTasks();
         sendText(exchange,
-                gson.toJson(tasks),
+                gson.toJson(tasks, SUBTASK_LIST_TYPE),
                 200);
     }
 
-    private void handleGetSubtaskById(HttpExchange exchange){
-        Gson gson = new Gson();
+    private void handleGetSubtaskById(HttpExchange exchange) throws ManagerSaveException {
         SubTask subtask = manager.getSubTaskById(getId(exchange));
         sendText(exchange,
-                gson.toJson(subtask),
+                gson.toJson(subtask, SUBTASK_TYPE),
                 200);
     }
 
-    private void handlePostSubtask(HttpExchange exchange){
-        JsonObject data = JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject();
-        String name = data.get("name").getAsString();
-        String description = data.get("description").getAsString();
-        int idMaster = data.get("idMaster").getAsInt();
-        SubTask subtask = new SubTask(name, description, idMaster);
-        if(data.has("duration")) {
-            Duration duration = Duration.parse(data.get("duration").toString());
-            LocalDateTime startTime = LocalDateTime.parse(data.get("startTime").getAsString());
-            subtask = new SubTask(name, description, idMaster, duration, startTime);
-        }
-        if (data.has("id")) {
-            subtask.setId(data.get("id").getAsLong());
-            manager.updateTask(subtask);
-        } else {
-            manager.addTask(subtask);
-        }
+    private void handlePostSubtask(HttpExchange exchange) throws ManagerSaveException {
+        String body = getRequestBody(exchange);
+        SubTask subtask = gson.fromJson(body, SubTask.class);
+
+//        if (JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject().has("id")) {
+//            manager.updateSubTask(subtask);
+//        } else {
+        manager.addSubTask(subtask);
+//        }
         sendText(exchange, "", 201);
     }
 
-    private void handleDeleteSubtask(HttpExchange exchange){
+    private void handleDeleteSubtask(HttpExchange exchange) throws ManagerSaveException {
         manager.removeSubTaskById(getId(exchange));
         sendText(exchange, "", 200);
     }

@@ -2,16 +2,21 @@ package main.java.server.handler;
 
 import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
+import main.java.exception.ManagerSaveException;
+import main.java.server.handler.adapter.DurationTypeAdapter;
+import main.java.server.handler.adapter.LocalDateTimeTypeAdapter;
 import main.java.task.Task;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class TaskHandler extends BaseHttpHandler {
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
+            .create();
 
     @Override
     public void handle(HttpExchange exchange) {
@@ -39,30 +44,31 @@ public class TaskHandler extends BaseHttpHandler {
         }
     }
 
-    private void handleGetTasks(HttpExchange exchange){
-        Gson gson = new Gson();
+    private void handleGetTasks(HttpExchange exchange) throws ManagerSaveException {
         List<Task> tasks = manager.getListOfTasks();
         sendText(exchange,
-                gson.toJson(tasks),
+                gson.toJson(tasks, TASK_LIST_TYPE),
                 200);
     }
 
-    private void handleGetTaskById(HttpExchange exchange){
-        Gson gson = new Gson();
+    private void handleGetTaskById(HttpExchange exchange) throws ManagerSaveException {
         Task task = manager.getTaskById(getId(exchange));
+        if (task == null) {
+            throw new ManagerSaveException("Задача не найдена");
+        }
         sendText(exchange,
-                gson.toJson(task),
+                gson.toJson(task, TASK_TYPE),
                 200);
     }
 
-    private void handlePostTask(HttpExchange exchange){
+    private void handlePostTask(HttpExchange exchange) throws ManagerSaveException {
         JsonObject data = JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject();
         String name = data.get("name").getAsString();
         String description = data.get("description").getAsString();
         Task task = new Task(name, description);
-        if(data.has("duration")) {
-            Duration duration = Duration.parse(data.get("duration").toString());
-            LocalDateTime startTime = LocalDateTime.parse(data.get("startTime").getAsString());
+        if (data.has("duration")) {
+            Duration duration = gson.fromJson(data.get("duration"), Duration.class);
+            LocalDateTime startTime = gson.fromJson(data.get("startTime"), LocalDateTime.class);
             task = new Task(name, description, duration, startTime);
         }
         if (data.has("id")) {
@@ -76,7 +82,7 @@ public class TaskHandler extends BaseHttpHandler {
                 201);
     }
 
-    private void handleDeleteTask(HttpExchange exchange){
+    private void handleDeleteTask(HttpExchange exchange) throws ManagerSaveException {
         manager.removeTaskById(getId(exchange));
         sendText(exchange,
                 "",

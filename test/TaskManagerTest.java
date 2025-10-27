@@ -1,5 +1,6 @@
 package main.java.test;
 
+import main.java.exception.ManagerSaveException;
 import main.java.manager.InMemoryHistoryManager;
 import main.java.manager.InMemoryTaskManager;
 import main.java.manager.Managers;
@@ -19,16 +20,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T manager;
 
-    protected abstract T createManager() throws IOException;
+    protected abstract T createManager() throws IOException, ManagerSaveException;
 
     @BeforeEach
-    void reset() throws IOException {
+    void reset() throws IOException, ManagerSaveException {
         manager = createManager();
     }
 
     //  Проверяется, что экземпляры или наследники класса Task равны друг другу, если равен их id;
     @Test
-    void tasksEqualById() {
+    void tasksEqualById() throws ManagerSaveException {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
         Task task2 = manager.getTaskById(task1.getId());
@@ -37,7 +38,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicsEqualById() {
+    void epicsEqualById() throws ManagerSaveException {
         Epic task1 = new Epic("task1", "description1");
         manager.addEpic(task1);
         Epic task2 = manager.getEpicById(task1.getId());
@@ -46,7 +47,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void subTasksEqualById() {
+    void subTasksEqualById() throws ManagerSaveException {
         Epic epic = new Epic("task1", "description1");
         manager.addEpic(epic);
         SubTask task1 = new SubTask("task1", "description1", epic.getId());
@@ -59,7 +60,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //  Проверяет, что объект Epic нельзя добавить в самого себя в виде подзадачи
     @Test
-    void epicCannotBeAddedToItself() {
+    void epicCannotBeAddedToItself() throws ManagerSaveException {
         Epic epic = new Epic("task1", "description1");
         SubTask subTask = new SubTask("task1", "description1", epic.getId());
         subTask.setId(epic.getId());
@@ -71,7 +72,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //  Проверяет, что объект Subtask нельзя сделать своим же эпиком
     @Test
-    void subTaskCannotBeAddedToItself() {
+    void subTaskCannotBeAddedToItself() throws ManagerSaveException {
         SubTask subTask = new SubTask("task1", "description1", 0);
         subTask.setId(0);
         manager.addSubTask(subTask);
@@ -93,7 +94,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //  Проверяется, что действительно добавляются задачи разного типа
     @Test
-    void addedTaskIsTask() {
+    void addedTaskIsTask() throws ManagerSaveException {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
 
@@ -101,7 +102,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void addedEpicIsEpic() {
+    void addedEpicIsEpic() throws ManagerSaveException {
         Epic epic = new Epic("epic1", "description1");
         manager.addEpic(epic);
 
@@ -109,7 +110,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void addedSubTaskIsSubTask() {
+    void addedSubTaskIsSubTask() throws ManagerSaveException {
         Epic epic = new Epic("epic1", "description1");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("subTask1", "description1", epic.getId());
@@ -121,7 +122,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //  Проверяется, что действительно добавляются задачи которые можно найти по Id
     @Test
-    void addedTaskIsFoundById() {
+    void addedTaskIsFoundById() throws ManagerSaveException {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
 
@@ -131,7 +132,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void addedEpicIsFoundById() {
+    void addedEpicIsFoundById() throws ManagerSaveException {
         Epic epic1 = new Epic("epic1", "description1");
         manager.addEpic(epic1);
 
@@ -141,7 +142,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void addedSubTaskIsFoundById() {
+    void addedSubTaskIsFoundById() throws ManagerSaveException {
         Epic epic = new Epic("epic1", "description1");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("subTask1", "description1", epic.getId());
@@ -155,7 +156,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //  Проверяет, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера
     @Test
-    void tasksWithGivenIdAndGeneratedIdDoNotConflictWithinManager() {
+    void tasksWithGivenIdAndGeneratedIdDoNotConflictWithinManager() throws ManagerSaveException {
         Task task1 = new Task("task1", "description1"); // id сгенерированный
         Task task2 = new Task("task2", "description2");
         task2.setId(100); // id заданный
@@ -180,7 +181,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     //  Тесты, в которых проверяется неизменность задач (по всем полям) при добавлении задач в менеджер
     @Test
-    void taskPersistenceWhenAddingTaskToManager() {
+    void taskPersistenceWhenAddingTaskToManager() throws ManagerSaveException {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
         Task task2 = manager.getTaskById(task1.getId());
@@ -192,7 +193,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicPersistenceWhenAddingTaskToManager() {
+    void epicPersistenceWhenAddingTaskToManager() throws ManagerSaveException {
         Epic epic1 = new Epic("epic1", "description1");
         manager.addEpic(epic1);
         Epic epic2 = manager.getEpicById(epic1.getId());
@@ -205,7 +206,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void subTaskPersistenceWhenAddingTaskToManager() {
+    void subTaskPersistenceWhenAddingTaskToManager() throws ManagerSaveException {
         Epic epic1 = new Epic("epic1", "description1");
         manager.addEpic(epic1);
         SubTask subTask1 = new SubTask("subTask1", "description1", epic1.getId());
@@ -220,7 +221,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void subTaskShouldBeAddedToEpic() {
+    void subTaskShouldBeAddedToEpic() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask = new SubTask("SubTask", "Description", epic.getId());
@@ -233,7 +234,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void subTaskShouldReferenceCorrectEpic() {
+    void subTaskShouldReferenceCorrectEpic() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask = new SubTask("SubTask", "Description", epic.getId());
@@ -245,7 +246,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldNotAddSubTaskWithInvalidEpic() {
+    void shouldNotAddSubTaskWithInvalidEpic() throws ManagerSaveException {
         SubTask invalidSubTask = new SubTask("Invalid", "Desc", 999L);
         manager.addSubTask(invalidSubTask);
 
@@ -253,7 +254,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void removingSubTaskShouldRemoveItFromEpic() {
+    void removingSubTaskShouldRemoveItFromEpic() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("SubTask 1", "Description 1", epic.getId());
@@ -269,7 +270,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void removingEpicShouldRemoveAllItsSubTasks() {
+    void removingEpicShouldRemoveAllItsSubTasks() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("SubTask 1", "Description 1", epic.getId());
@@ -284,14 +285,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldBeNewWhenNoSubTasks() {
+    void epicStatusShouldBeNewWhenNoSubTasks() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         assertEquals(TaskStatus.NEW, epic.getStatus());
     }
 
     @Test
-    void epicStatusShouldBeNewWhenAllSubTasksNew() {
+    void epicStatusShouldBeNewWhenAllSubTasksNew() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("SubTask 1", "Description 1", epic.getId());
@@ -306,7 +307,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldBeDoneWhenAllSubTasksDone() {
+    void epicStatusShouldBeDoneWhenAllSubTasksDone() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("SubTask 1", "Description 1", epic.getId());
@@ -321,7 +322,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldBeInProgressWhenSubTasksMixed() {
+    void epicStatusShouldBeInProgressWhenSubTasksMixed() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("SubTask 1", "Description 1", epic.getId());
@@ -336,7 +337,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldBeInProgressWhenAnySubTaskInProgress() {
+    void epicStatusShouldBeInProgressWhenAnySubTaskInProgress() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("SubTask 1", "Description 1", epic.getId());
@@ -351,7 +352,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updatingSubTaskShouldUpdateEpicStatus() {
+    void updatingSubTaskShouldUpdateEpicStatus() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask = new SubTask("SubTask", "Description", epic.getId());
@@ -366,7 +367,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldUpdateWhenSubTaskRemoved() {
+    void epicStatusShouldUpdateWhenSubTaskRemoved() throws ManagerSaveException {
         Epic epic = new Epic("Epic", "Description");
         manager.addEpic(epic);
         SubTask subTask = new SubTask("SubTask", "Description", epic.getId());

@@ -16,93 +16,89 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     // Удаление всех задач
     @Override
-    public void clearTasks() {
+    public void clearTasks() throws ManagerSaveException {
         super.clearTasks();
         save();
     }
 
     @Override
-    public void clearEpics() {
+    public void clearEpics() throws ManagerSaveException {
         super.clearEpics();
         save();
     }
 
     @Override
-    public void clearSubTasks() {
+    public void clearSubTasks() throws ManagerSaveException {
         super.clearSubTasks();
         save();
     }
 
     //Создание задачи
     @Override
-    public void addTask(Task task) {
+    public void addTask(Task task) throws ManagerSaveException {
         super.addTask(task);
         save();
     }
 
     @Override
-    public void addEpic(Epic epic) {
+    public void addEpic(Epic epic) throws ManagerSaveException {
         super.addEpic(epic);
         save();
     }
 
     @Override
-    public void addSubTask(SubTask subTask) {
+    public void addSubTask(SubTask subTask) throws ManagerSaveException {
         super.addSubTask(subTask);
         save();
     }
 
     // Обновление задачи
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws ManagerSaveException {
         super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) throws ManagerSaveException {
         super.updateEpic(epic);
         save();
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
+    public void updateSubTask(SubTask subTask) throws ManagerSaveException {
         super.updateSubTask(subTask);
         save();
     }
 
     // Удаление задачи по id
     @Override
-    public void removeTaskById(long id) {
+    public void removeTaskById(long id) throws ManagerSaveException {
         super.removeTaskById(id);
         save();
     }
 
     @Override
-    public void removeEpicById(long id) {
+    public void removeEpicById(long id) throws ManagerSaveException {
         super.removeEpicById(id);
         save();
     }
 
     @Override
-    public void removeSubTaskById(long id) {
+    public void removeSubTaskById(long id) throws ManagerSaveException {
         super.removeSubTaskById(id);
         save();
     }
 
-    private void save() {
+    private void save() throws ManagerSaveException {
         try (BufferedWriter br = new BufferedWriter(new FileWriter(file))) {
             br.write(HEADER + System.lineSeparator());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            writeTaskToFile(tasks);
-            writeTaskToFile(subTasks);
-            writeTaskToFile(epics);
-        } catch (ManagerSaveException e) {
-            System.out.println("Ошибка сохранения данных в файл");
-        }
+        writeTaskToFile(tasks);
+        writeTaskToFile(subTasks);
+        writeTaskToFile(epics);
     }
 
     private <T extends Task> void writeTaskToFile(HashMap<Long, T> list) throws ManagerSaveException {
@@ -110,14 +106,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             List<String> lines = list.values().stream()
                     .map(Object::toString)
                     .toList();
-            br.write(String.join(",", lines) + System.lineSeparator());
+            if (!lines.isEmpty()) {
+                for (String line : lines) {
+                    br.write(String.join(",", line) + System.lineSeparator());
+                }
+            }
         } catch (IOException e) {
-            throw new ManagerSaveException();
+            throw new ManagerSaveException("Ошибка сохранения данных в файл");
         }
     }
 
-    public static FileBackedTaskManager loadFromFile(String file) {
+    public static FileBackedTaskManager loadFromFile(String file) throws ManagerSaveException {
         FileBackedTaskManager taskManager = new FileBackedTaskManager();
+        taskManager.loadFlag = true;
         taskManager.file = file;
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -151,7 +152,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
 
             }
-
+            taskManager.loadFlag = false;
         } catch (IOException e) {
             e.printStackTrace();
         }
