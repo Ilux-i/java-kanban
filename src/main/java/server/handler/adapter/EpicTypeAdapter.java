@@ -1,7 +1,6 @@
 package main.java.server.handler.adapter;
 
 import com.google.gson.*;
-import main.java.status.TaskStatus;
 import main.java.task.Epic;
 import main.java.task.SubTask;
 
@@ -59,7 +58,7 @@ public class EpicTypeAdapter implements JsonSerializer<Epic>, JsonDeserializer<E
 
         Epic epic;
 
-        if(data.has("duration")) {
+        if (data.has("duration")) {
             Duration duration = gson.fromJson(data.get("duration"), Duration.class);
             LocalDateTime startTime = gson.fromJson(data.get("startTime"), LocalDateTime.class);
             epic = new Epic(name, description, duration, startTime);
