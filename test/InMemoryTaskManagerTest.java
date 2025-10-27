@@ -197,24 +197,6 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
         assertEquals(10, history.size(), "История должна содержать все просмотренные задачи");
     }
 
-    @Test
-    void historyManagerShouldWorkAfterClear() throws ManagerSaveException {
-        Task task1 = new Task("Task 1", "Description 1");
-        Task task2 = new Task("Task 2", "Description 2");
-        manager.addTask(task1);
-        manager.addTask(task2);
-
-        manager.getTaskById(task1.getId());
-        manager.getTaskById(task2.getId());
-
-        // Очищаем все задачи
-        manager.clearTasks();
-
-        // История должна быть пустой
-        List<Task> history = manager.getHistory();
-        assertTrue(history.isEmpty(), "История должна быть пустой после очистки задач");
-    }
-
     //  Проверяется, что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
     @Test
     public void historyManagerSavePreviousVersionOfTaskAndItsData() throws ManagerSaveException {

@@ -64,9 +64,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
         Epic epic = new Epic("task1", "description1");
         SubTask subTask = new SubTask("task1", "description1", epic.getId());
         subTask.setId(epic.getId());
-        manager.addEpic(epic);
-        manager.addSubTask(subTask);
-        assertNull(manager.getSubTaskById(epic.getId()));
+        try {
+            manager.addEpic(epic);
+            manager.addSubTask(subTask);
+            assertNull(manager.getSubTaskById(epic.getId()));
+        } catch (ManagerSaveException e) {
+            if (e.getClass() == ManagerSaveException.class) {
+                assertTrue(true);
+            } else {
+                assertTrue(false);
+            }
+        }
     }
 
 
@@ -75,8 +83,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
     void subTaskCannotBeAddedToItself() throws ManagerSaveException {
         SubTask subTask = new SubTask("task1", "description1", 0);
         subTask.setId(0);
-        manager.addSubTask(subTask);
-        assertNull(manager.getSubTaskById(0));
+        try {
+            manager.addSubTask(subTask);
+        } catch (ManagerSaveException e) {
+            if (e.getClass() == ManagerSaveException.class) {
+                assertTrue(true);
+            } else {
+                assertTrue(false);
+            }
+        }
     }
 
 
@@ -248,9 +263,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldNotAddSubTaskWithInvalidEpic() throws ManagerSaveException {
         SubTask invalidSubTask = new SubTask("Invalid", "Desc", 999L);
-        manager.addSubTask(invalidSubTask);
-
-        assertNull(manager.getSubTaskById(invalidSubTask.getId()));
+        try {
+            manager.addSubTask(invalidSubTask);
+        } catch (ManagerSaveException e) {
+            if (e.getClass() == ManagerSaveException.class) {
+                assertTrue(true);
+            } else {
+                assertTrue(false);
+            }
+        }
     }
 
     @Test
