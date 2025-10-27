@@ -1,15 +1,9 @@
 package main.java.server.handler;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import main.java.manager.FileBackedTaskManager;
-import main.java.manager.Managers;
-import main.java.server.HttpTaskServer;
-import main.java.server.handler.adapter.DurationTypeAdapter;
-import main.java.server.handler.adapter.LocalDateTimeTypeAdapter;
 import main.java.task.Epic;
 import main.java.task.SubTask;
 import main.java.task.Task;
@@ -51,10 +45,10 @@ public class BaseHttpHandler implements HttpHandler {
     }
 
     protected long getId(HttpExchange exchange) {
-        return Long.parseLong(exchange.
-                getRequestURI().
-                getPath().
-                split("/")[2]);
+        return Long.parseLong(exchange
+                .getRequestURI()
+                .getPath()
+                .split("/")[2]);
     }
 
     protected String getRequestBody(HttpExchange exchange) {
