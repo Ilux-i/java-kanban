@@ -44,7 +44,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Удаление всех задач
     @Override
-    public void clearTasks() throws ManagerSaveException {
+    public void clearTasks() {
         for (Task task : tasks.values()) {
             while (historyManager.getHistory().contains(task)) {
                 historyManager.remove(task.getId());
@@ -55,7 +55,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void clearEpics() throws ManagerSaveException {
+    public void clearEpics() {
         for (Epic epic : epics.values()) {
             while (historyManager.getHistory().contains(epic)) {
                 historyManager.remove(epic.getId());
@@ -66,7 +66,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void clearSubTasks() throws ManagerSaveException {
+    public void clearSubTasks() {
         for (SubTask subTask : subTasks.values()) {
             while (historyManager.getHistory().contains(subTask)) {
                 historyManager.remove(subTask.getId());
@@ -191,7 +191,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Удаление задачи по id
     @Override
-    public void removeTaskById(long id) throws ManagerSaveException {
+    public void removeTaskById(long id) {
         Task task = tasks.get(id);
         sortedSet.remove(task);
         while (historyManager.getHistory().contains(task)) {
@@ -201,7 +201,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeEpicById(long id) throws ManagerSaveException {
+    public void removeEpicById(long id) {
         Epic epic = epics.get(id);
         sortedSet.remove(epic);
         while (historyManager.getHistory().contains(epic)) {
@@ -217,7 +217,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeSubTaskById(long id) throws ManagerSaveException {
+    public void removeSubTaskById(long id) {
         SubTask subTask = subTasks.get(id);
         sortedSet.remove(subTasks.get(id));
         Epic epic = epics.get(subTask.getMaster());

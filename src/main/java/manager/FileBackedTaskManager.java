@@ -16,19 +16,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     // Удаление всех задач
     @Override
-    public void clearTasks() throws ManagerSaveException {
+    public void clearTasks() {
         super.clearTasks();
         save();
     }
 
     @Override
-    public void clearEpics() throws ManagerSaveException {
+    public void clearEpics() {
         super.clearEpics();
         save();
     }
 
     @Override
-    public void clearSubTasks() throws ManagerSaveException {
+    public void clearSubTasks() {
         super.clearSubTasks();
         save();
     }
@@ -73,24 +73,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     // Удаление задачи по id
     @Override
-    public void removeTaskById(long id) throws ManagerSaveException {
+    public void removeTaskById(long id) {
         super.removeTaskById(id);
         save();
     }
 
     @Override
-    public void removeEpicById(long id) throws ManagerSaveException {
+    public void removeEpicById(long id) {
         super.removeEpicById(id);
         save();
     }
 
     @Override
-    public void removeSubTaskById(long id) throws ManagerSaveException {
+    public void removeSubTaskById(long id) {
         super.removeSubTaskById(id);
         save();
     }
 
-    private void save() throws ManagerSaveException {
+    private void save() {
         try (BufferedWriter br = new BufferedWriter(new FileWriter(file))) {
             br.write(HEADER + System.lineSeparator());
         } catch (IOException e) {
@@ -101,7 +101,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         writeTaskToFile(epics);
     }
 
-    private <T extends Task> void writeTaskToFile(HashMap<Long, T> list) throws ManagerSaveException {
+    private <T extends Task> void writeTaskToFile(HashMap<Long, T> list) {
         try (BufferedWriter br = new BufferedWriter(new FileWriter(file, true))) {
             List<String> lines = list.values().stream()
                     .map(Object::toString)
@@ -112,7 +112,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка сохранения данных в файл");
+            System.out.println("Ошибка сохранения данных в файл");
+            e.printStackTrace();
         }
     }
 

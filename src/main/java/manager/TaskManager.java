@@ -55,4 +55,6 @@ public interface TaskManager {
     // Получение подзадач эпика
     List<SubTask> getSubtasks(Epic epic);
 
+    public List<Task> getPrioritizedTasks();
+
 }

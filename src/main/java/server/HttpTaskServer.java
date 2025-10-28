@@ -3,6 +3,7 @@ package main.java.server;
 import com.sun.net.httpserver.HttpServer;
 import main.java.exception.ManagerSaveException;
 import main.java.manager.FileBackedTaskManager;
+import main.java.manager.TaskManager;
 import main.java.server.handler.*;
 
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
 
-    public static FileBackedTaskManager manager;
+    public static TaskManager manager;
 
     private static final int PORT = 8080;
     private static HttpServer server;
@@ -29,7 +30,7 @@ public class HttpTaskServer {
             server.createContext("/prioritized", new PrioritizedHandler());
             server.start();
             manager = FileBackedTaskManager.loadFromFile(file);
-            BaseHttpHandler.manager = manager;
+            BaseHttpHandler.setManager(manager);
             System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
         } catch (IOException | ManagerSaveException e) {
             throw new RuntimeException(e);

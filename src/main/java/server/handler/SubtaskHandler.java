@@ -26,18 +26,18 @@ public class SubtaskHandler extends BaseHttpHandler {
     public void handle(HttpExchange exchange) {
         try {
             String method = exchange.getRequestMethod();
-            switch (method) {
-                case "GET":
+            switch (Method.valueOf(method)) {
+                case GET:
                     if (exchange.getRequestURI().getPath().split("/").length > 2) {
                         handleGetSubtaskById(exchange);
                     } else {
                         handleGetSubtasks(exchange);
                     }
                     break;
-                case "POST":
+                case POST:
                     handlePostSubtask(exchange);
                     break;
-                case "DELETE":
+                case DELETE:
                     handleDeleteSubtask(exchange);
                     break;
                 default:
@@ -66,9 +66,6 @@ public class SubtaskHandler extends BaseHttpHandler {
         String body = getRequestBody(exchange);
         SubTask subtask = gson.fromJson(body, SubTask.class);
 
-//        if (JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject().has("id")) {
-//            manager.updateSubTask(subtask);
-//        } else {
         manager.addSubTask(subtask);
 //        }
         sendText(exchange, "", 201);

@@ -21,7 +21,7 @@ public class PrioritizedHandler extends BaseHttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         try {
             String method = exchange.getRequestMethod();
-            if (method.equals("GET")) {
+            if (Method.valueOf(method) == Method.GET) {
                 handleGetPrioritized(exchange);
             } else {
                 throw new Exception("Unsupported HTTP method: " + method);

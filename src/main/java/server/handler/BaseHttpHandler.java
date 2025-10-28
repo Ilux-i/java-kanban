@@ -3,7 +3,8 @@ package main.java.server.handler;
 import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import main.java.manager.FileBackedTaskManager;
+import main.java.manager.TaskManager;
+import main.java.server.HttpTaskServer;
 import main.java.task.Epic;
 import main.java.task.SubTask;
 import main.java.task.Task;
@@ -15,7 +16,12 @@ import java.util.List;
 
 public class BaseHttpHandler implements HttpHandler {
 
-    public static FileBackedTaskManager manager;
+    protected static TaskManager manager;
+
+    public static void setManager(TaskManager manager) {
+        BaseHttpHandler.manager = manager;
+    }
+
     protected static final Type TASK_LIST_TYPE = new TypeToken<List<Task>>() {
     }.getType();
     protected static final Type EPIC_LIST_TYPE = new TypeToken<List<Epic>>() {

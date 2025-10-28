@@ -26,8 +26,8 @@ public class EpicHandler extends BaseHttpHandler {
     public void handle(HttpExchange exchange) {
         try {
             String method = exchange.getRequestMethod();
-            switch (method) {
-                case "GET":
+            switch (Method.valueOf(method)) {
+                case GET:
                     if (exchange.getRequestURI().getPath().split("/").length > 3) {
                         handleGetEpicSubtasks(exchange);
                     } else if (exchange.getRequestURI().getPath().split("/").length > 2) {
@@ -36,10 +36,10 @@ public class EpicHandler extends BaseHttpHandler {
                         handleGetEpics(exchange);
                     }
                     break;
-                case "POST":
+                case POST:
                     handlePostEpic(exchange);
                     break;
-                case "DELETE":
+                case DELETE:
                     handleDeleteEpic(exchange);
                     break;
                 default:
@@ -75,9 +75,6 @@ public class EpicHandler extends BaseHttpHandler {
         String body = getRequestBody(exchange);
         Epic epic = gson.fromJson(body, Epic.class);
 
-//        if(JsonParser.parseString(getRequestBody(exchange)).getAsJsonObject().has("id")) {
-//            manager.updateEpic(epic);
-//        } else {
         manager.addEpic(epic);
         sendText(exchange, "", 201);
     }

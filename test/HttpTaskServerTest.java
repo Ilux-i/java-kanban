@@ -3,6 +3,7 @@ package main.java.test;
 import com.google.gson.GsonBuilder;
 import main.java.exception.ManagerSaveException;
 import main.java.manager.FileBackedTaskManager;
+import main.java.manager.TaskManager;
 import main.java.server.HttpTaskServer;
 import main.java.server.handler.adapter.DurationTypeAdapter;
 import main.java.server.handler.adapter.EpicTypeAdapter;
@@ -32,7 +33,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskServerTest {
-    private static FileBackedTaskManager manager;
+    private static TaskManager manager;
     private HttpClient client;
     private final String baseUrl = "http://localhost:8080";
     private final Gson taskGson = new GsonBuilder()
