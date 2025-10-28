@@ -9,12 +9,6 @@ import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-//     самые                 самые
-//    давние                 новые
-//    записи                записи
-//     tail                  head
-//      <----------------------@>
-
     private final Map<Long, Node> map = new HashMap();
     private Node tail = new Node(null, null);
     private Node head = new Node(tail, null);

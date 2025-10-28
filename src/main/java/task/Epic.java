@@ -33,6 +33,10 @@ public class Epic extends Task {
         return this.subtasks;
     }
 
+    public void setSubtasks(ArrayList<SubTask> subtasks) {
+        this.subtasks = subtasks;
+    }
+
     public LocalDateTime getEndTime() {
         return this.endTime;
     }

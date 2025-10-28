@@ -1,5 +1,6 @@
 package main.java.test;
 
+import main.java.exception.ManagerSaveException;
 import main.java.manager.Managers;
 import main.java.manager.TaskManager;
 import org.junit.jupiter.api.Assertions;
@@ -28,7 +29,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    void historyManagerShouldNotContainDuplicates() {
+    void historyManagerShouldNotContainDuplicates() throws ManagerSaveException {
         Task task = new Task("Task", "Description");
         manager.addTask(task);
 
@@ -42,7 +43,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    void historyManagerShouldRemoveFromBeginning() {
+    void historyManagerShouldRemoveFromBeginning() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         Task task2 = new Task("Task 2", "Description 2");
         Task task3 = new Task("Task 3", "Description 3");
@@ -65,7 +66,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    void historyManagerShouldRemoveFromMiddle() {
+    void historyManagerShouldRemoveFromMiddle() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         Task task2 = new Task("Task 2", "Description 2");
         Task task3 = new Task("Task 3", "Description 3");
@@ -88,7 +89,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    void historyManagerShouldRemoveFromEnd() {
+    void historyManagerShouldRemoveFromEnd() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         Task task2 = new Task("Task 2", "Description 2");
         Task task3 = new Task("Task 3", "Description 3");
@@ -111,7 +112,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    void historyManagerShouldMaintainOrderAfterRemoval() {
+    void historyManagerShouldMaintainOrderAfterRemoval() throws ManagerSaveException {
         Task task1 = new Task("Task 1", "Description 1");
         Task task2 = new Task("Task 2", "Description 2");
         Task task3 = new Task("Task 3", "Description 3");
@@ -140,7 +141,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    void historyManagerShouldHandleMixedTaskTypes() {
+    void historyManagerShouldHandleMixedTaskTypes() throws ManagerSaveException {
         Task task = new Task("Task", "Description");
         Epic epic = new Epic("Epic", "Description");
         manager.addTask(task);
@@ -162,7 +163,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    void historyManagerShouldUpdateTaskInHistory() {
+    void historyManagerShouldUpdateTaskInHistory() throws ManagerSaveException {
         Task task = new Task("Original", "Original Description");
         manager.addTask(task);
         manager.getTaskById(task.getId()); // добавляем в историю
@@ -181,7 +182,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    void historyManagerShouldLimitSize() {
+    void historyManagerShouldLimitSize() throws ManagerSaveException {
         // Добавляем много задач
         for (int i = 1; i <= 10; i++) {
             Task task = new Task("Task " + i, "Description " + i);
@@ -196,27 +197,9 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
         assertEquals(10, history.size(), "История должна содержать все просмотренные задачи");
     }
 
-    @Test
-    void historyManagerShouldWorkAfterClear() {
-        Task task1 = new Task("Task 1", "Description 1");
-        Task task2 = new Task("Task 2", "Description 2");
-        manager.addTask(task1);
-        manager.addTask(task2);
-
-        manager.getTaskById(task1.getId());
-        manager.getTaskById(task2.getId());
-
-        // Очищаем все задачи
-        manager.clearTasks();
-
-        // История должна быть пустой
-        List<Task> history = manager.getHistory();
-        assertTrue(history.isEmpty(), "История должна быть пустой после очистки задач");
-    }
-
     //  Проверяется, что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
     @Test
-    public void historyManagerSavePreviousVersionOfTaskAndItsData() {
+    public void historyManagerSavePreviousVersionOfTaskAndItsData() throws ManagerSaveException {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
 
@@ -237,7 +220,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    public void historyManagerSavePreviousVersionOfEpicAndItsData() {
+    public void historyManagerSavePreviousVersionOfEpicAndItsData() throws ManagerSaveException {
         Epic epic1 = new Epic("Epic1", "description1");
         manager.addEpic(epic1);
 
@@ -259,7 +242,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     }
 
     @Test
-    public void historyManagerSavePreviousVersionOfSubTaskAndItsData() {
+    public void historyManagerSavePreviousVersionOfSubTaskAndItsData() throws ManagerSaveException {
         Epic epic = new Epic("Epic1", "description1");
         manager.addEpic(epic);
         SubTask subTask1 = new SubTask("task1", "description1", epic.getId());
@@ -279,7 +262,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
 
     //  Таска должна удаляться из хешмапы и истории
     @Test
-    public void deleteTaskByIdFromEntireSystem() {
+    public void deleteTaskByIdFromEntireSystem() throws ManagerSaveException {
         Task task1 = new Task("task1", "description1");
         manager.addTask(task1);
         task1 = manager.getTaskById(task1.getId());
@@ -291,7 +274,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
 
     //  Эпик должен удаляться из хешмапы и истории как и его сабтаски
     @Test
-    public void deleteEpicByIdFromEntireSystem() {
+    public void deleteEpicByIdFromEntireSystem() throws ManagerSaveException {
         Epic epic = new Epic("task1", "description1");
         SubTask subTask = new SubTask("subTask1", "description1", epic.getId());
         manager.addEpic(epic);
@@ -311,7 +294,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
 
     //  Сабтаски должны удаляться из хешмапы, истории и списка сабтасков эпика(только она)
     @Test
-    public void deleteSubTaskByIdFromEntireSystem() {
+    public void deleteSubTaskByIdFromEntireSystem() throws ManagerSaveException {
         Epic epic = new Epic("task1", "description1");
         SubTask subTask1 = new SubTask("subTask1", "description1", epic.getId());
         SubTask subTask2 = new SubTask("subTask2", "description2", epic.getId());

@@ -23,5 +23,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="gson-2.9.0.jar" level="project" />
+    <orderEntry type="library" name="gson-2.9.0.jar" level="application" />
   </component>
 </module>

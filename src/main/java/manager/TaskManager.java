@@ -1,5 +1,6 @@
 package main.java.manager;
 
+import main.java.exception.ManagerSaveException;
 import main.java.task.Epic;
 import main.java.task.SubTask;
 import main.java.task.Task;
@@ -17,11 +18,11 @@ public interface TaskManager {
     List<Task> getHistory();
 
     // Удаление всех задач
-    void clearTasks();
+    void clearTasks() throws ManagerSaveException;
 
-    void clearEpics();
+    void clearEpics() throws ManagerSaveException;
 
-    void clearSubTasks();
+    void clearSubTasks() throws ManagerSaveException;
 
     // Получение задачи по id
     Task getTaskById(long id);
@@ -31,27 +32,29 @@ public interface TaskManager {
     SubTask getSubTaskById(long id);
 
     //Создание задачи
-    void addTask(Task task);
+    void addTask(Task task) throws ManagerSaveException;
 
-    void addEpic(Epic epic);
+    void addEpic(Epic epic) throws ManagerSaveException;
 
-    void addSubTask(SubTask subTask);
+    void addSubTask(SubTask subTask) throws ManagerSaveException;
 
     // Обновление задачи
-    void updateTask(Task task);
+    void updateTask(Task task) throws ManagerSaveException;
 
-    void updateEpic(Epic epic);
+    void updateEpic(Epic epic) throws ManagerSaveException;
 
-    void updateSubTask(SubTask subTask);
+    void updateSubTask(SubTask subTask) throws ManagerSaveException;
 
     // Удаление задачи по id
-    void removeTaskById(long id);
+    void removeTaskById(long id) throws ManagerSaveException;
 
-    void removeEpicById(long id);
+    void removeEpicById(long id) throws ManagerSaveException;
 
-    void removeSubTaskById(long id);
+    void removeSubTaskById(long id) throws ManagerSaveException;
 
     // Получение подзадач эпика
     List<SubTask> getSubtasks(Epic epic);
+
+    public List<Task> getPrioritizedTasks();
 
 }

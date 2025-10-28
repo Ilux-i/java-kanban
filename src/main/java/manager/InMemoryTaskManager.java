@@ -17,6 +17,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected HashMap<Long, SubTask> subTasks = new HashMap<>();
     protected HistoryManager historyManager = Managers.getDefaultHistory();
     protected TreeSet<Task> sortedSet = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+    protected boolean loadFlag = false;
 
 
     // Получение всех задач
@@ -44,29 +45,35 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех задач
     @Override
     public void clearTasks() {
-        new ArrayList<>(tasks.values()).stream()
-                .map(Task::getId)
-                .forEach(this::removeTaskById);
+        for (Task task : tasks.values()) {
+            while (historyManager.getHistory().contains(task)) {
+                historyManager.remove(task.getId());
+            }
+            sortedSet.remove(task);
+            removeTaskById(task.getId());
+        }
     }
 
     @Override
     public void clearEpics() {
-        new ArrayList<>(epics.values()).stream()
-                .map(Epic::getId)
-                .forEach(this::removeEpicById);
+        for (Epic epic : epics.values()) {
+            while (historyManager.getHistory().contains(epic)) {
+                historyManager.remove(epic.getId());
+            }
+            sortedSet.remove(epic);
+            removeEpicById(epic.getId());
+        }
     }
 
     @Override
     public void clearSubTasks() {
-        // Очищаем подзадачи у всех эпиков и сбрасываем статус
-        epics.values().stream()
-                .peek(epic -> epic.getSubtasks().clear())
-                .forEach(epic -> epic.setStatus(TaskStatus.NEW));
-
-        // Удаляем подзадачи из мапы (исправлено: removeSubTaskById вместо removeEpicById)
-        new ArrayList<>(subTasks.values()).stream()
-                .map(SubTask::getId)
-                .forEach(this::removeSubTaskById);
+        for (SubTask subTask : subTasks.values()) {
+            while (historyManager.getHistory().contains(subTask)) {
+                historyManager.remove(subTask.getId());
+            }
+            sortedSet.remove(subTask);
+            removeSubTaskById(subTask.getId());
+        }
     }
 
 
@@ -101,7 +108,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //Создание задачи
     @Override
-    public void addTask(Task task) {
+    public void addTask(Task task) throws ManagerSaveException {
         try {
             checkingIntersectionsForSortedSet(task);
 
@@ -113,35 +120,35 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void addEpic(Epic epic) {
+    public void addEpic(Epic epic) throws ManagerSaveException {
         epics.put(epic.getId(), epic);
     }
 
     @Override
-    public void addSubTask(SubTask subTask) {
-        try {
-            checkingIntersectionsForSortedSet(subTask);
+    public void addSubTask(SubTask subTask) throws ManagerSaveException {
+        checkingIntersectionsForSortedSet(subTask);
 
-            if (subTask.getMaster() == subTask.getId()) {
-                throw new ManagerSaveException("Подзадача не может содержаться сама в себе.");
-            }
-            if (!epics.containsKey(subTask.getMaster())) {
-                throw new ManagerSaveException("Подзадача не может быть добавлена к несуществующему эпику");
-            }
+        if (subTask.getMaster() == subTask.getId()) {
+            throw new ManagerSaveException("Подзадача не может содержаться сама в себе.");
+        }
+        if (!epics.containsKey(subTask.getMaster()) && !loadFlag) {
+            throw new ManagerSaveException("Подзадача не может быть добавлена к несуществующему эпику");
+        }
+        if (loadFlag) {
+            subTasks.put(subTask.getId(), subTask);
+        } else {
             Epic epic = epics.get(subTask.getMaster());
-            subTasks.put(subTask.getId(), subTask); // добавление в main.java.task
+            subTasks.put(subTask.getId(), subTask);
             epic.getSubtasks().add(subTask); // Добавление в subtasks Master
             checkStatus(epic); // Обновление статуса Master
             epics.get(subTask.getMaster()).checkingTheEpicExecutionTime();
-        } catch (ManagerSaveException e) {
-            e.getMessage();
         }
     }
 
 
     // Обновление задачи
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws ManagerSaveException {
         Task task1 = tasks.get(task.getId());
         sortedSet.remove(task1);
         try {
@@ -151,21 +158,21 @@ public class InMemoryTaskManager implements TaskManager {
                 tasks.put(task.getId(), task);
             }
         } catch (ManagerSaveException e) {
-            e.getMessage();
             sortedSet.add(task1);
+            throw new ManagerSaveException(e.getMessage());
         }
 
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) throws ManagerSaveException {
         if (epics.containsKey(epic.getId())) {
             epics.put(epic.getId(), epic);
         }
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
+    public void updateSubTask(SubTask subTask) throws ManagerSaveException {
         Task subTask1 = tasks.get(subTask.getId());
         sortedSet.remove(subTask1);
         try {
@@ -176,8 +183,8 @@ public class InMemoryTaskManager implements TaskManager {
                 checkStatus(epics.get(subTask.getMaster())); // Обновление статуса Master
             }
         } catch (ManagerSaveException e) {
-            e.getMessage();
             sortedSet.add(subTask1);
+            throw new ManagerSaveException(e.getMessage());
         }
     }
 
